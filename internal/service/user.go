@@ -13,7 +13,7 @@ type User struct {
 	userRepo interfaces.UserRepository
 }
 
-func NewUser(userRepo *queries.UserRepository) *User {
+func NewUser(userRepo interfaces.UserRepository) *User {
 	return &User{userRepo: userRepo}
 }
 
