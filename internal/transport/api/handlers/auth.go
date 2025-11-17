@@ -5,12 +5,12 @@ import (
 	"backend/internal/service"
 	"backend/internal/transport/api/dto"
 	"backend/pkg/utils"
-	"context"
 	"errors"
 	"fmt"
+	"net/http"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/jackc/pgx/v5"
+	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
@@ -22,21 +22,37 @@ type Auth struct {
 }
 
 // NewAuth - создать новый экземпляр обработчика
-func NewAuth(userService *service.User, authService *service.Auth, logger *zap.Logger, api huma.API) *Auth {
+func NewAuth(userService *service.User, authService *service.Auth, logger *zap.Logger, router *echo.Echo) *Auth {
 	result := &Auth{
 		userService: userService,
 		authService: authService,
 		logger:      logger,
 	}
 
-	result.setup(api)
+	router.POST("/api/login", result.login)
 
 	return result
 }
 
-// login - Получить токен для взаимодействия. Нуждается в Raw строке из Telegram Mini App. Действует 1 час
-func (h *Auth) login(ctx context.Context, input *dto.AuthInputStruct) (*dto.AuthOutputStruct, error) {
-	data := input.Body
+// login godoc
+// @Summary      Login
+// @Description  Войти в аккаунт, также выполняет функцию регистрации
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        body body dto.AuthData  true  "Auth data"
+// @Success      200  {object}  dto.Token
+// @Failure      400  {object}  dto.ApiError
+// @Failure      401  {object}  dto.ApiError
+// @Failure      500  {object}  dto.ApiError
+// @Router       /api/login [post]
+func (h *Auth) login(echoCtx echo.Context) error {
+	var data dto.AuthData
+	if err := echoCtx.Bind(&data); err != nil {
+		return err
+	}
+
+	ctx := echoCtx.Request().Context()
 
 	h.logger.Info("login: " + data.Email)
 
@@ -46,22 +62,22 @@ func (h *Auth) login(ctx context.Context, input *dto.AuthInputStruct) (*dto.Auth
 	user, err := h.userService.GetByEmail(ctx, data.Email)
 	if err != nil {
 		if !errors.Is(err, pgx.ErrNoRows) {
-			h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", input.Body.Email, err.Error()))
+			h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
 
-			return nil, utils.Convert(err, h.logger)
+			return utils.Convert(err, h.logger)
 		}
 
 		userID, err = h.userService.Create(ctx, data.Email, data.Password)
 		if err != nil {
 			h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
 
-			return nil, utils.Convert(err, h.logger)
+			return utils.Convert(err, h.logger)
 		}
 	} else {
 		if err := h.authService.VerifyPassword(user, data.Password); err != nil {
 			h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
 
-			return nil, utils.Convert(err, h.logger)
+			return utils.Convert(err, h.logger)
 		}
 
 		userID = user.ID
@@ -71,12 +87,12 @@ func (h *Auth) login(ctx context.Context, input *dto.AuthInputStruct) (*dto.Auth
 	if err != nil {
 		h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
 
-		return nil, utils.Convert(err, h.logger)
+		return utils.Convert(err, h.logger)
 	}
 
 	tokenData := dto.Token{
 		Token: token,
 	}
 
-	return &dto.AuthOutputStruct{Body: tokenData}, nil
+	return echoCtx.JSON(http.StatusOK, tokenData)
 }

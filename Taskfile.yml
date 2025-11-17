@@ -3,6 +3,9 @@
 version: '3'
 
 tasks:
+  swag:
+    cmds:
+      - swag init -g cmd/main.go
   test:
     cmds:
       - go test -v ./...

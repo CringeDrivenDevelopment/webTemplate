@@ -1,0 +1,12 @@
+[project]
+name = "e2e"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "faker>=38.0.0",
+    "pytest>=9.0.1",
+    "pytest-xdist>=3.8.0",
+    "tavern>=3.0.1",
+]

@@ -28,3 +28,6 @@ go.work
 *.env
 .DS_Store
 *.iml
+
+.venv
+__pycache__

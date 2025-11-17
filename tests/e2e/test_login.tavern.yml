@@ -1,0 +1,56 @@
+test_name: Базовая регистрация и аутентификация
+
+marks:
+  - usefixtures:
+      - generate_random_email
+
+stages:
+  - name: "Регистрация нового  аккаунта"
+    request:
+      url: "{BASE_URL}/login"
+      method: POST
+      json:
+        email: "{generate_random_email}"
+        password: SuperStrongPassword2000!
+    response:
+      status_code: 200
+
+  - name: "Аутентификация"
+    request:
+      url: "{BASE_URL}/login"
+      method: POST
+      json:
+        email: "{generate_random_email}"
+        password: SuperStrongPassword2000!
+    response:
+      status_code: 200
+
+  - name: "Аутентификация с неверным паролем"
+    request:
+      url: "{BASE_URL}/login"
+      method: POST
+      json:
+        email: "{generate_random_email}"
+        password: SuperStrongPassword2000!WRong
+    response:
+      status_code: 401
+
+  # - name: "Аутентификация с неверной почтой"
+  #   request:
+  #     url: "{BASE_URL}/login"
+  #     method: POST
+  #     json:
+  #       email: "adasdsadsa"
+  #       password: SuperStrongPassword2000!WRong
+  #   response:
+  #     status_code: 400
+
+  # - name: "Аутентификация с неверный паролем"
+  #   request:
+  #     url: "{BASE_URL}/login"
+  #     method: POST
+  #     json:
+  #      email: "{generate_random_email}"
+  #      password: dsadsa
+  #   response:
+  #     status_code: 400

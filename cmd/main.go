@@ -11,6 +11,14 @@ import (
 	"go.uber.org/zap"
 )
 
+// @title           Backend API
+// @version         1.0
+
+// @host      localhost:8080
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description "Type 'Bearer TOKEN' to correctly set the API Key"
 func main() {
 	// TODO: log db requests
 	// TODO: add otel
@@ -21,7 +29,6 @@ func main() {
 		fx.Provide(
 			// REST API
 			infra.NewEcho,
-			infra.NewHuma,
 			middlewares.NewLogger,
 			middlewares.NewAuth,
 			handlers.NewAuth,

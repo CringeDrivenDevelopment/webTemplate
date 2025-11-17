@@ -1,0 +1,71 @@
+definitions:
+  dto.ApiError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  dto.AuthData:
+    properties:
+      email:
+        example: shad@tinkoff.ru
+        type: string
+      password:
+        example: v3RyH@RdPa$$w0rd
+        type: string
+    type: object
+  dto.Token:
+    properties:
+      token:
+        description: Token string itself
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  title: Backend API
+  version: "1.0"
+paths:
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: Войти в аккаунт, также выполняет функцию регистрации
+      parameters:
+      - description: Auth data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Token'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ApiError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ApiError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ApiError'
+      summary: Login
+      tags:
+      - auth
+securityDefinitions:
+  Bearer:
+    description: '"Type ''Bearer TOKEN'' to correctly set the API Key"'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

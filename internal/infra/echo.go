@@ -4,11 +4,27 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/bytedance/sonic"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
+
+type sonicJSONSerializer struct{}
+
+func (s *sonicJSONSerializer) Serialize(c echo.Context, i interface{}, indent string) error {
+	enc := sonic.ConfigStd.NewEncoder(c.Response())
+	if indent != "" {
+		enc.SetIndent("", indent)
+	}
+
+	return enc.Encode(i)
+}
+
+func (s *sonicJSONSerializer) Deserialize(c echo.Context, i interface{}) error {
+	return sonic.ConfigStd.NewDecoder(c.Request().Body).Decode(i)
+}
 
 func NewEcho(lc fx.Lifecycle, cfg *Config, logger *zap.Logger, loggerWare echo.MiddlewareFunc) *echo.Echo {
 	router := echo.New()
@@ -16,6 +32,8 @@ func NewEcho(lc fx.Lifecycle, cfg *Config, logger *zap.Logger, loggerWare echo.M
 	if !cfg.Debug {
 		router.Use(middleware.Recover())
 	}
+
+	router.JSONSerializer = &sonicJSONSerializer{}
 
 	router.GET("/api/ping", func(c echo.Context) error {
 		return c.String(http.StatusOK, "pong")

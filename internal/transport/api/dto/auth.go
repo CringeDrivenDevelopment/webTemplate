@@ -1,13 +1,5 @@
 package dto
 
-type AuthInputStruct struct {
-	Body AuthData
-}
-
-type AuthOutputStruct struct {
-	Body Token
-}
-
 type AuthData struct {
 	Email    string `json:"email" example:"shad@tinkoff.ru" doc:"user email"`
 	Password string `json:"password" example:"v3RyH@RdPa$$w0rd" doc:"user password"`
