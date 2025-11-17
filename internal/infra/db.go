@@ -1,64 +1,61 @@
 package infra
 
 import (
-	projectroot "backend"
+	"backend/internal/infra/queries"
 	"context"
+	"log"
+	"os"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/jackc/pgx/v5/stdlib"
-	"github.com/pressly/goose/v3"
+	_ "github.com/lib/pq"
 	"go.uber.org/fx"
-	"go.uber.org/zap"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
-func NewPostgresConnection(lc fx.Lifecycle, logger *zap.Logger, cfg *Config) (*pgxpool.Pool, error) {
-	ctxWithCancel, cancel := context.WithCancel(context.Background())
-
-	pool, err := pgxpool.New(ctxWithCancel, cfg.DbUrl)
+func NewPostgresConnection(lc fx.Lifecycle, logger *Logger, cfg *Config) (*gorm.DB, error) {
+	var gormConfig *gorm.Config
+	newLogger := gormLogger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		gormLogger.Config{
+			SlowThreshold: time.Second,
+			LogLevel:      gormLogger.Info,
+			Colorful:      true,
+		},
+	)
+	gormConfig = &gorm.Config{
+		TranslateError: true,
+		Logger:         newLogger,
+	}
+	db, err := gorm.Open(postgres.Open(cfg.DbUrl), gormConfig)
 	if err != nil {
-		cancel()
 		return nil, err
 	}
+	sqlDB, err := db.DB()
+	sqlDB.SetMaxOpenConns(20)
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetConnMaxLifetime(10 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(2 * time.Minute)
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			logger.Info("running migrations with db url: " + cfg.DbUrl)
 
-			// configure pool
-			poolConfig := pool.Config()
-			poolConfig.MaxConns = 10
-			poolConfig.MinConns = 2
-			poolConfig.MaxConnLifetime = time.Hour
-			poolConfig.MaxConnIdleTime = time.Minute * 30
-			poolConfig.HealthCheckPeriod = time.Minute
-
-			// check if online
-			if err := pool.Ping(ctx); err != nil {
-				return err
-			}
-
 			// run migrations
-			goose.SetBaseFS(projectroot.EmbedMigrations)
-			goose.SetLogger(&ZapGooseAdapter{zap: logger})
-			if err := goose.SetDialect("postgres"); err != nil {
-				return err
-			}
-			db := stdlib.OpenDBFromPool(pool)
-			if err := goose.Up(db, "sql/migrations"); err != nil {
-				return err
-			}
-			if err := db.Close(); err != nil {
-				return err
-			}
+
+			err = db.AutoMigrate(&queries.User{})
 
 			logger.Info("migrations applied")
 
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			pool.Close()
-			cancel()
+			dbsql, err := db.DB()
+			if err != nil {
+				logger.Error()
+			}
+			dbsql.Close()
 
 			logger.Info("db connection closed")
 
@@ -66,5 +63,5 @@ func NewPostgresConnection(lc fx.Lifecycle, logger *zap.Logger, cfg *Config) (*p
 		},
 	})
 
-	return pool, nil
+	return db, nil
 }

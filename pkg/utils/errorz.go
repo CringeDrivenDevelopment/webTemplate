@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"backend/internal/infra"
 	"errors"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 var (
@@ -14,20 +16,20 @@ var (
 	ErrContextUserNotFound = errors.New("user not found in context")
 )
 
-func Convert(functionError error, logger *zap.Logger) error {
-	if errors.Is(functionError, pgx.ErrNoRows) {
+func Convert(functionError error, logger *infra.Logger) error {
+	if errors.Is(functionError, gorm.ErrRecordNotFound) {
 		return echo.ErrNotFound
 	}
 
 	if errors.Is(functionError, ErrInvalidToken) {
-		return echo.ErrUnauthorized
+		return huma.Error401Unauthorized("invalid token")
 	}
 
 	if errors.Is(functionError, ErrInvalidPassword) {
-		return echo.ErrUnauthorized
+		return huma.Error401Unauthorized("invalid password")
 	}
 
 	logger.Error("500 error stacktrace", zap.Error(functionError))
 
-	return echo.ErrInternalServerError
+	return huma.Error500InternalServerError("internal server error")
 }

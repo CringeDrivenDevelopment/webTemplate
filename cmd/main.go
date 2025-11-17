@@ -2,13 +2,12 @@ package main
 
 import (
 	"backend/internal/infra"
+	"backend/internal/infra/queries"
 	"backend/internal/service"
 	"backend/internal/transport/api/handlers"
 	"backend/internal/transport/api/middlewares"
 
 	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
-	"go.uber.org/zap"
 )
 
 // @title           Backend API
@@ -34,12 +33,16 @@ func main() {
 			infra.NewLogger,
 			infra.NewConfig,
 			infra.NewPostgresConnection,
+			queries.NewUserRepo,
 			service.NewAuth,
 			service.NewUser,
 		),
-		fx.WithLogger(func(lc fx.Lifecycle, logger *zap.Logger) fxevent.Logger {
-			return &infra.ZapFxLogger{Logger: logger}
-		}),
+		// fx.Provide(func(logger *infra.Logger) *zap.Logger {
+		// 	return logger.Zap
+		// }),
+		// fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
+		// 	return &infra.ZapFxLogger{Logger: logger}
+		// }),
 		fx.Invoke(func(auth *handlers.Auth) {
 			// need each of controllers, to register them
 

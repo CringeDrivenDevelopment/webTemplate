@@ -26,7 +26,7 @@ func (s *sonicJSONSerializer) Deserialize(c echo.Context, i interface{}) error {
 	return sonic.ConfigStd.NewDecoder(c.Request().Body).Decode(i)
 }
 
-func NewEcho(lc fx.Lifecycle, cfg *Config, logger *zap.Logger, loggerWare echo.MiddlewareFunc) *echo.Echo {
+func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.MiddlewareFunc) *echo.Echo {
 	router := echo.New()
 
 	if !cfg.Debug {

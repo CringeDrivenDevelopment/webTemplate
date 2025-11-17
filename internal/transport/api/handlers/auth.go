@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"backend/internal/infra"
 	"backend/internal/interfaces"
 	"backend/internal/service"
 	"backend/internal/transport/api/dto"
@@ -9,20 +10,19 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type Auth struct {
 	userService interfaces.UserService
 	authService interfaces.AuthService
 
-	logger *zap.Logger
+	logger *infra.Logger
 }
 
 // NewAuth - создать новый экземпляр обработчика
-func NewAuth(userService *service.User, authService *service.Auth, logger *zap.Logger, router *echo.Echo) *Auth {
+func NewAuth(userService *service.User, authService *service.Auth, logger *infra.Logger, router *echo.Echo) *Auth {
 	result := &Auth{
 		userService: userService,
 		authService: authService,
@@ -61,7 +61,7 @@ func (h *Auth) login(echoCtx echo.Context) error {
 
 	user, err := h.userService.GetByEmail(ctx, data.Email)
 	if err != nil {
-		if !errors.Is(err, pgx.ErrNoRows) {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
 
 			return utils.Convert(err, h.logger)

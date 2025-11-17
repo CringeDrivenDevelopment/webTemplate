@@ -12,9 +12,9 @@ tasks:
   lint:
     cmds:
       - golangci-lint run ./...
-  sqlc:
-    cmds:
-      - sqlc generate
+  # sqlc:
+  #   cmds:
+  #     - sqlc generate
   dcu:
     cmds:
       - docker compose -f dev-compose.yml up -d
