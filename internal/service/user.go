@@ -5,6 +5,7 @@ import (
 	"backend/pkg/utils"
 	"context"
 
+	"github.com/alexedwards/argon2id"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/oklog/ulid/v2"
 )
@@ -20,7 +21,7 @@ func NewUser(pool *pgxpool.Pool) *User {
 func (s *User) Create(ctx context.Context, email, password string) (string, error) {
 	id := ulid.Make().String()
 
-	passwordHash, err := utils.CreateHash(password, utils.DefaultParams)
+	passwordHash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
 	if err != nil {
 		return "", err
 	}

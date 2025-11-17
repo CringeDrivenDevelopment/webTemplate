@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alexedwards/argon2id"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -57,7 +58,7 @@ func (s *Auth) VerifyToken(authHeader string) (string, error) {
 }
 
 func (s *Auth) VerifyPassword(user queries.User, password string) error {
-	valid, err := utils.ComparePasswordAndHash(password, user.PasswordHash)
+	valid, err := argon2id.ComparePasswordAndHash(password, user.PasswordHash)
 	if err != nil {
 		return err
 	}
