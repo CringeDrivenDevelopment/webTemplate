@@ -2,6 +2,7 @@ package infra
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/bytedance/sonic"
@@ -55,7 +56,7 @@ func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.Middl
 			logger.Info("starting server on :8080")
 			go func() {
 				err := router.Start(":8080")
-				if err != nil {
+				if err != nil && !errors.Is(err, http.ErrServerClosed) {
 					logger.Fatal("stopping server, cause: error", zap.Error(err))
 				}
 			}()
