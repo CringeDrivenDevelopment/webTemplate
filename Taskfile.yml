@@ -1,0 +1,20 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  test:
+    cmds:
+      - go test -v ./...
+  lint:
+    cmds:
+      - golangci-lint run ./...
+  sqlc:
+    cmds:
+      - sqlc generate
+  dcu:
+    cmds:
+      - docker compose -f dev-compose.yml up -d
+  dcd:
+    cmds:
+      - docker compose -f dev-compose.yml down
