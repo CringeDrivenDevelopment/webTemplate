@@ -1,4 +1,4 @@
-TASKFILE="Taskfile.yaml"
+TASKFILE="Taskfile.yml"
 
 # Check if the file exists
 if [ ! -f "$TASKFILE" ]; then
@@ -7,7 +7,7 @@ if [ ! -f "$TASKFILE" ]; then
 fi
 
 # Extract all variables from the vars section
-echo "Extracting variables from Taskfile.yaml:"
+echo "Extracting variables from Taskfile.yml:"
 
 # Find the start and end of the vars section
 VARS_START=$(grep -n "^vars:" "$TASKFILE" | cut -d: -f1)
