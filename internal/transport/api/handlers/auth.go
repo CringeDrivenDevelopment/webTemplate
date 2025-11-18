@@ -1,10 +1,6 @@
 package handlers
 
 import (
-	"backend/internal/interfaces"
-	"backend/internal/service"
-	"backend/internal/transport/api/dto"
-	"backend/pkg/utils"
 	"errors"
 	"fmt"
 	"net/http"
@@ -12,6 +8,11 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+
+	"backend/internal/interfaces"
+	"backend/internal/service"
+	"backend/internal/transport/api/dto"
+	"backend/pkg/utils"
 )
 
 type Auth struct {

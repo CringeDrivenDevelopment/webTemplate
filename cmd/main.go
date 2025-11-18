@@ -1,14 +1,14 @@
 package main
 
 import (
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxevent"
+	"go.uber.org/zap"
+
 	"backend/internal/infra"
 	"backend/internal/service"
 	"backend/internal/transport/api/handlers"
 	"backend/internal/transport/api/middlewares"
-
-	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
-	"go.uber.org/zap"
 )
 
 // @title           Backend API

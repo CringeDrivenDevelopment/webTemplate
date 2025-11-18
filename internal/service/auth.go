@@ -1,14 +1,15 @@
 package service
 
 import (
-	"backend/internal/infra"
-	"backend/internal/infra/queries"
-	"backend/pkg/utils"
 	"strings"
 	"time"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/golang-jwt/jwt/v5"
+
+	"backend/internal/infra"
+	"backend/internal/infra/queries"
+	"backend/pkg/utils"
 )
 
 type Auth struct {
@@ -35,7 +36,6 @@ func (s *Auth) VerifyToken(authHeader string) (string, error) {
 	token, err := jwt.Parse(tokenStr, func(_ *jwt.Token) (interface{}, error) {
 		return []byte(s.secret), nil
 	})
-
 	if err != nil {
 		return "", err
 	}

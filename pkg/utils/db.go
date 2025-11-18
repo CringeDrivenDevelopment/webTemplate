@@ -1,11 +1,12 @@
 package utils
 
 import (
-	"backend/internal/infra/queries"
 	"context"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"backend/internal/infra/queries"
 )
 
 func ExecInTx(ctx context.Context, pool *pgxpool.Pool, action func(tx *queries.Queries) error) error {

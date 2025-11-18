@@ -1,13 +1,14 @@
 package service
 
 import (
-	"backend/internal/infra/queries"
-	"backend/pkg/utils"
 	"context"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/oklog/ulid/v2"
+
+	"backend/internal/infra/queries"
+	"backend/pkg/utils"
 )
 
 type User struct {

@@ -1,0 +1,100 @@
+version: "2"
+
+run: # initial params
+  timeout: 5m
+  relative-path-mode: gomod  # file paths relatively go.mod
+  issues-exit-code: 1 # status code on
+  tests: true  # analyze _test.go files
+  modules-download-mode: readonly  # don't allow download dependencies
+
+output: # output settings
+  formats:
+    text:
+      print-linter-name: true
+      print-issued-lines: true
+      colors: true
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  uniq-by-line: true  # one error per line
+
+linters:
+  default: standard
+  enable:
+    - errcheck        # Checks if errors aren't ignored
+    - staticcheck     # Deep static analysis (includes gosimple, stylecheck)
+    - govet           # Go analyze tool (looks for potential bugs)
+    - gocritic        # Set of advanced rules to improve code quality
+    - revive          # code style
+    - unused          # unused stuff
+    - gosec           # vulnerabilities and unsafe
+    - depguard        # forbids import of selected packages (dep control)
+    - bodyclose       # Checks, if `resp.Body` closes in HTTP requests
+    - asciicheck      # warns about non-ASCII symbols
+    - cyclop          # cyclomatic complexity of functions
+    - ineffassign     # unused assignments
+    - unparam         # unused params in functions
+    - errorlint       # recommends `errors.Is` / `errors.As` instead of `if err == ...`
+    - errname         # checks types and names of errors (must include `Err`)
+    - forbidigo       # Forbids certain calls or constructions based on regex-patterns
+    - contextcheck    # Checks if `context.Context` is inherited in functions
+    - containedctx    # warns if `context.Context` is saved in struct
+  disable:
+    - gocyclo  # old cyclomatic complexity linter
+    - lll      # check line length
+    - dupl     # search for duplicates
+
+  exclusions:
+    generated: strict  # ignore generated files (by "// Code generated ... DO NOT EDIT.")
+    rules: # Local exclusions by path/file/linters
+      - path: _test\.go  # For each test:
+        linters:
+          - cyclop
+          - dupl
+          - gosec
+
+  settings: # settings for linters
+
+    gosec:
+      config:
+        global:
+          audit: true        # Activate security-based rules
+          show-ignored: true # Show ignored problems in comments
+        severity: "medium"   # minimum severity, high/medium/low
+        confidence: "medium" # minimum confidence, high/medium/low
+
+    cyclop:
+      max-complexity: 20  # accepted function complexity
+
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: io/ioutil
+              desc: "Using outdated io/ioutil is forbidden (change to os/io)"
+
+    revive:
+      severity: warning
+
+    forbidigo:
+      exclude-godoc-examples: true
+      analyze-types: true  # Check types/constants
+      forbid: # Forbidden patterns
+        - pattern: '^fmt\.Print.*$'
+          msg: "Directly using fmt.Print* for logger"
+        - pattern: '^time\.Sleep$'
+          msg: "Using time.Sleep is forbidden in production (use timers/context)"
+        - pattern: '^http\.DefaultClient$'
+          msg: "Using http.DefaultClient (no timeouts) is bad; use *http.Client with timeouts"
+
+formatters:
+  enable:
+    - gci      # import formatters
+  settings:
+    gci:
+      sections: # import sort
+        - Standard  # std
+        - Default   # external dependencies
+        - Prefix(backend)  # Local project imports
+      no-inline-comments: false  # allow comments after imports
