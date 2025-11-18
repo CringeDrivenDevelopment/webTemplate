@@ -37,12 +37,11 @@ func main() {
 			service.NewAuth,
 			service.NewUser,
 		),
-		// fx.Provide(func(logger *infra.Logger) *zap.Logger {
-		// 	return logger.Zap
-		// }),
-		// fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
-		// 	return &infra.ZapFxLogger{Logger: logger}
-		// }),
+		/*
+			fx.WithLogger(func(lc fx.Lifecycle, logger *infra.Logger) fxevent.Logger {
+				return &infra.ZapFxLogger{Logger: logger.Zap}
+			}),
+		*/
 		fx.Invoke(func(auth *handlers.Auth) {
 			// need each of controllers, to register them
 

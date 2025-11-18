@@ -1,8 +1,9 @@
 package interfaces
 
 import (
-	"backend/internal/infra/queries"
 	"context"
+
+	"backend/internal/infra/queries"
 )
 
 type UserService interface {

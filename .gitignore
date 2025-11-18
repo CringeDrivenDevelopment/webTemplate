@@ -29,5 +29,10 @@ go.work
 .DS_Store
 *.iml
 
+/bin
+/logs
 .venv
 __pycache__
+
+# AI
+CLAUDE.md

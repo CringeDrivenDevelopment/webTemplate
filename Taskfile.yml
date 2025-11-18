@@ -1,17 +1,92 @@
-# https://taskfile.dev
-
 version: '3'
 
+vars:
+  GO_VERSION: '1.25.4'
+  GOLANGCI_LINT_VERSION: 'v2.6.2'
+  GCI_VERSION: 'v0.13.7'
+  GOFUMPT_VERSION: 'v0.9.2'
+  SWAG_VERSION: 'v1.16.6'
+  SQLC_VERSION: 'v1.30.0'
+
+  BIN_DIR: '{{.ROOT_DIR}}/bin'
+  GOLANGCI_LINT: '{{.BIN_DIR}}/golangci-lint'
+  GCI: '{{.BIN_DIR}}/gci'
+  GOFUMPT: '{{.BIN_DIR}}/gofumpt'
+  SWAG: '{{.BIN_DIR}}/swag'
+  SQLC: '{{.BIN_DIR}}/sqlc'
+
 tasks:
-  swag:
+  install-formatters:
+    desc: "Installs gci and gofumpt formatters in ./bin"
     cmds:
-      - swag init -g cmd/main.go
+      - |
+        [ -f {{.GOFUMPT}} ] || {
+          mkdir -p {{.BIN_DIR}}
+          echo '📦 Installing gofumpt {{.GOFUMPT_VERSION}}...'
+          GOBIN={{.BIN_DIR}} go install mvdan.cc/gofumpt@{{.GOFUMPT_VERSION}}
+        }
+        [ -f {{.GCI}} ] || {
+          mkdir -p {{.BIN_DIR}}
+          echo '📦 Installing gci {{.GCI_VERSION}}...'
+          GOBIN={{.BIN_DIR}} go install github.com/daixiang0/gci@{{.GCI_VERSION}}
+        }
+    status:
+      - test -x {{.GOFUMPT}}
+      - test -x {{.GCI}}
+  format:
+    desc: "Formats the entire project using gofumpt + gci, excluding mocks"
+    deps: [ install-formatters ]
+    cmds:
+      - |
+        echo "🎯 Sorting imports with gci ..."
+        find . -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GCI}} write -s standard -s default -s "prefix(backend)" {} +
+      - |
+        echo "🧼 Formatting with gofumpt ..."
+        find . -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GOFUMPT}} -extra -w {} +
+
+  install-golangci-lint:
+    desc: "Installs golangci-lint into the bin directory"
+    cmds:
+      - |
+        [ -f {{.GOLANGCI_LINT}} ] || {
+          mkdir -p {{.BIN_DIR}}
+          echo "📦 Installing golangci-lint {{.GOLANGCI_LINT_VERSION}}..."
+          GOBIN={{.BIN_DIR}} go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
+        }
+    status:
+      - test -x {{.GOLANGCI_LINT}}
+  lint:
+    desc: "Runs golangci-lint for all modules"
+    deps: [ install-golangci-lint ]
+    cmds:
+      - |
+        set -e
+        ERR=0
+        echo "🔍 Linting backend ..."
+        {{.GOLANGCI_LINT}} run ./... --config=.golangci.yaml || ERR=1
+        exit $ERR
+
+  install-swag:
+    desc: "installs swagger"
+    cmds:
+      - |
+        [ -f {{.SWAG}} ] || {
+          mkdir -p {{.BIN_DIR}}
+          echo "📦 Installing swag {{.SWAG_VERSION}}..."
+          GOBIN={{.BIN_DIR}} g ьщo install github.com/swaggo/swag/cmd/swag@{{.SWAG_VERSION}}
+        }
+    status:
+      - test -x {{.SWAG}}
+  swag:
+    desc: "generates swagger based on go-code"
+    deps: [ install-swag ]
+    cmds:
+      - |
+        {{.SWAG}} init -g cmd/main.go
+
   test:
     cmds:
       - go test -v ./...
-  lint:
-    cmds:
-      - golangci-lint run ./...
   # sqlc:
   #   cmds:
   #     - sqlc generate

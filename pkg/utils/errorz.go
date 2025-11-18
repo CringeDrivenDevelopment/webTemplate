@@ -4,7 +4,6 @@ import (
 	"backend/internal/infra"
 	"errors"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -22,14 +21,14 @@ func Convert(functionError error, logger *infra.Logger) error {
 	}
 
 	if errors.Is(functionError, ErrInvalidToken) {
-		return huma.Error401Unauthorized("invalid token")
+		return echo.ErrUnauthorized
 	}
 
 	if errors.Is(functionError, ErrInvalidPassword) {
-		return huma.Error401Unauthorized("invalid password")
+		return echo.ErrUnauthorized
 	}
 
 	logger.Error("500 error stacktrace", zap.Error(functionError))
 
-	return huma.Error500InternalServerError("internal server error")
+	return echo.ErrInternalServerError
 }
