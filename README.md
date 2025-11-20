@@ -1,5 +1,4 @@
 ![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/HeyReyHR/33fad6beea65140d890305e435b5b0ab/raw/coverage.json)
-
 # Backend Template
 
 ```shell

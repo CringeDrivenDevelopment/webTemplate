@@ -20,6 +20,8 @@ vars:
   COVERAGE_DIR: '{{.ROOT_DIR}}/coverage'
   COVERAGE_FILE: total.out
 
+  MODULES: .
+
 tasks:
   install-formatters:
     desc: "Installs gci and gofumpt formatters in ./bin"
@@ -117,42 +119,32 @@ tasks:
         exit $ERR
 
   test-coverage:
-    desc: "Тесты с покрытием бизнес-логики (service/repository) для модуля backend"
+    desc: "Tests with business logic coverage (service/repository)"
     cmds:
       - |
         echo "🧪 Запускаем расчёт покрытия..."
         rm -rf {{.COVERAGE_DIR}}
         mkdir -p {{.COVERAGE_DIR}}
         
-        MOD="backend"
-        echo "📦 Обрабатываем модуль: $MOD"
-        
-        TARGET_PKGS=$(go list ./... \
-          | grep -E '/(internal/(service|repository))' \
-          | grep -vE '/(mocks|testdata|pkg|api|cmd)' \
-          | paste -sd "," -)
-        
-        if [ -z "$TARGET_PKGS" ]; then
-          echo "⚠️  Нет подходящих пакетов"
-          exit 1
-        fi
-        
-        TEST_PKGS=$(echo "$TARGET_PKGS" | tr "," "\n" | while read pkg; do
-          if go list -f '{{`{{if .TestGoFiles}}{{.ImportPath}}{{end}}`}}' "$pkg" 2>/dev/null | grep -q .; then
-            echo "$pkg"
-          fi
-        done | paste -sd " " -)
-        
-        if [ -z "$TEST_PKGS" ]; then
-          echo "⚠️  Нет пакетов с тестами"
-          exit 1
-        fi
-        
         ERR=0
-        go test -coverpkg="$TARGET_PKGS" \
-          -coverprofile={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} \
-          -covermode=atomic \
-          $TEST_PKGS || ERR=1
+        for mod in {{.MODULES}}; do
+          echo "📦 Обрабатываем модуль: $mod"
+        
+          TARGET_PKGS=$(go list ./$mod/... \
+            | grep -E '/(internal/(service|repository))' \
+            | grep -vE '/(mocks|testdata|pkg|api|proto|pb|cmd)' \
+            | paste -sd "," -)
+        
+          if [ -z "$TARGET_PKGS" ]; then
+            echo "⚠️  Нет подходящих пакетов в $mod"
+            continue
+          fi
+        
+          go test -coverpkg="$TARGET_PKGS" \
+            -coverprofile={{.COVERAGE_DIR}}/$mod.out \
+            -covermode=atomic \
+            $(echo "$TARGET_PKGS" | tr "," " ") || ERR=1
+        done
         
         if [ $ERR -ne 0 ]; then
           echo "❌ Ошибки во время тестов"
@@ -160,7 +152,25 @@ tasks:
         fi
         
         echo
-        echo "📊 Покрытие модуля $MOD:"
+        echo "📊 Покрытие по каждому модулю:"
+        for mod in {{.MODULES}}; do
+          OUTFILE="{{.COVERAGE_DIR}}/$mod.out"
+          if [ -f "$OUTFILE" ]; then
+            printf " • %s: " "$mod"
+            go tool cover -func="$OUTFILE" | tail -n1
+          fi
+        done
+        
+        echo
+        echo "📦 Склеиваем все покрытия..."
+        {
+          echo "mode: atomic"
+          find {{.COVERAGE_DIR}} -type f -name '*.out' ! -name '{{.COVERAGE_FILE}}' \
+            -exec grep -h -v "^mode:" {} +
+        } > {{.COVERAGE_DIR}}/{{.COVERAGE_FILE}}
+        
+        echo
+        echo "🧾 Общее покрытие по всем модулям:"
         go tool cover -func={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} | tail -n1
   
 
