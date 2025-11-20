@@ -2,7 +2,6 @@
 set -euo pipefail
 
 cleanup() {
-    docker compose logs backend
     echo "Cleaning up Docker containers..."
     docker compose down --remove-orphans || true
 }
