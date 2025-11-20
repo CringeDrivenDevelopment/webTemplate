@@ -26,7 +26,7 @@ go/pkg/mod/
 Thumbs.db
 
 # Configuration files
-.env
+dev.env
 *.env
 docker-compose.yml
 docker-compose.*.yml

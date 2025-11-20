@@ -1,4 +1,4 @@
-package queries
+package model
 
 import (
 	"fmt"
@@ -13,9 +13,13 @@ type User struct {
 	PasswordHash string `gorm:"not null"`
 }
 
-func (_ *User) TableName() string {
+// по идее надо бы для каждого слоя свой model файл делать и задрачивать конвертеры для каждого
+// но мы заебемся это делать
+
+func (*User) TableName() string {
 	return "users"
 }
+
 func (u *User) BeforeSave(tx *gorm.DB) error {
 	var user User
 	err := tx.Where("LOWER(users.email) = ?", strings.ToLower(u.Email)).First(&user).Error

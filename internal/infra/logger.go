@@ -29,7 +29,7 @@ func NewLogger(lc fx.Lifecycle) (*Logger, error) {
 		return nil, err
 	}
 	l.LogsPath = filepath.Join(wd, "./logs")
-	err = os.MkdirAll(l.LogsPath, os.ModePerm)
+	err = os.MkdirAll(l.LogsPath, 0o750)
 	if err != nil {
 		return nil, err
 	}
@@ -47,8 +47,7 @@ func NewLogger(lc fx.Lifecycle) (*Logger, error) {
 		EncodeDuration: zapcore.SecondsDurationEncoder,
 	}
 
-	var level zapcore.Level
-	level = zap.InfoLevel
+	level := zap.InfoLevel
 
 	consoleEncoderConfig := encoderConfig
 	consoleEncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
@@ -64,7 +63,10 @@ func NewLogger(lc fx.Lifecycle) (*Logger, error) {
 	cores = append(cores, consoleCore)
 
 	logPath := filepath.Join(l.LogsPath, fmt.Sprintf("%s.log", time.Now().Format("2006-01-02_15")))
-	fileWriter, errOpen := os.OpenFile(logPath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0o644)
+
+	// gosec: G304 is acceptable here as logPath is constructed from safe components
+	// nolint:gosec
+	fileWriter, errOpen := os.OpenFile(logPath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0o600)
 	if errOpen != nil {
 		return nil, errOpen
 	}

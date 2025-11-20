@@ -16,6 +16,7 @@ type sonicJSONSerializer struct{}
 
 func (s *sonicJSONSerializer) Serialize(c echo.Context, i interface{}, indent string) error {
 	enc := sonic.ConfigStd.NewEncoder(c.Response())
+
 	if indent != "" {
 		enc.SetIndent("", indent)
 	}
@@ -41,6 +42,7 @@ func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.Middl
 	})
 
 	router.HideBanner = true
+
 	router.HidePort = true
 
 	router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -54,16 +56,21 @@ func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.Middl
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			logger.Info("starting server on :8080")
+
 			go func() {
 				err := router.Start(":8080")
+
 				if err != nil && !errors.Is(err, http.ErrServerClosed) {
 					logger.Fatal("stopping server, cause: error", zap.Error(err))
 				}
 			}()
+
 			return nil
 		},
+
 		OnStop: func(ctx context.Context) error {
 			logger.Info("stopped server")
+
 			return router.Shutdown(ctx)
 		},
 	})

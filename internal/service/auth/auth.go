@@ -1,4 +1,4 @@
-package service
+package auth
 
 import (
 	"strings"
@@ -7,27 +7,12 @@ import (
 	"github.com/alexedwards/argon2id"
 	"github.com/golang-jwt/jwt/v5"
 
-	"backend/internal/infra"
-	"backend/internal/infra/queries"
+	"backend/internal/model"
 	"backend/pkg/utils"
 )
 
-type Auth struct {
-	secret string
-
-	expires time.Duration
-}
-
-// NewAuth - создать новый экземпляр сервиса авторизации
-func NewAuth(cfg *infra.Config) *Auth {
-	return &Auth{
-		secret:  cfg.JwtSecret,
-		expires: time.Hour,
-	}
-}
-
 // VerifyToken - проверить токен на подлинность
-func (s *Auth) VerifyToken(authHeader string) (string, error) {
+func (s *Service) VerifyToken(authHeader string) (string, error) {
 	tokenStr := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
 	if tokenStr == "" {
 		return "", utils.ErrInvalidToken
@@ -57,7 +42,7 @@ func (s *Auth) VerifyToken(authHeader string) (string, error) {
 	return userID, nil
 }
 
-func (s *Auth) VerifyPassword(user queries.User, password string) error {
+func (s *Service) VerifyPassword(user model.User, password string) error {
 	valid, err := argon2id.ComparePasswordAndHash(password, user.PasswordHash)
 	if err != nil {
 		return err
@@ -71,7 +56,7 @@ func (s *Auth) VerifyPassword(user queries.User, password string) error {
 }
 
 // GenerateToken - создать новый JWT токен
-func (s *Auth) GenerateToken(userID string) (string, error) {
+func (s *Service) GenerateToken(userID string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,
 		"iat": time.Now().Unix(),

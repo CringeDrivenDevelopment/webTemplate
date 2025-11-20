@@ -1,17 +1,20 @@
 package utils
 
 import (
-	"backend/internal/infra"
 	"errors"
 
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	"backend/internal/infra"
 )
 
 var (
-	ErrInvalidToken        = errors.New("invalid token")
-	ErrInvalidPassword     = errors.New("invalid password")
+	ErrInvalidToken = errors.New("invalid token")
+
+	ErrInvalidPassword = errors.New("invalid password")
+
 	ErrContextUserNotFound = errors.New("user not found in context")
 )
 

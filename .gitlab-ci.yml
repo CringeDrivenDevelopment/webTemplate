@@ -26,7 +26,7 @@ build-and-push:
         - "**/*"
       when: on_success
     - changes:
-        - .env
+        - dev.env
         - compose.yml
         - dev-compose.yml
         - pg-compose.yml

@@ -53,6 +53,7 @@ linters:
           - cyclop
           - dupl
           - gosec
+          - errcheck
 
   settings: # settings for linters
 

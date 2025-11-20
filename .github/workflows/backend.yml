@@ -8,7 +8,7 @@ on:
       - .editorconfig
       - docker-compose.yml
       - README.md
-      - dev.env
+      - ../../dev.env
   pull_request:
     paths-ignore:
       - .gitignore
@@ -16,7 +16,7 @@ on:
       - .editorconfig
       - docker-compose.yml
       - README.md
-      - dev.env
+      - ../../dev.env
 
 env:
   REGISTRY: ghcr.io
@@ -52,7 +52,15 @@ jobs:
       go-version: ${{ needs.extract-vars.outputs.go-version }}
       golangci-lint-version: ${{ needs.extract-vars.outputs.golangci-lint-version }}
 
+  test:
+    uses: ./.github/workflows/test-reusable.yaml
+    needs: lint
+    with:
+      modules: ${{ needs.extract-vars.outputs.modules }}
+      go-version: ${{ needs.extract-vars.outputs.go-version }}
+
   build-and-push-image:
+    needs: test
     runs-on: ubuntu-latest
 
     concurrency:

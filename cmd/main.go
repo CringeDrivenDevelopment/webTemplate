@@ -1,13 +1,15 @@
 package main
 
 import (
+	"go.uber.org/fx"
+
 	"backend/internal/infra"
-	"backend/internal/infra/queries"
-	"backend/internal/service"
+	"backend/internal/repository"
+	userRepo "backend/internal/repository/user"
+	"backend/internal/service/auth"
+	"backend/internal/service/user"
 	"backend/internal/transport/api/handlers"
 	"backend/internal/transport/api/middlewares"
-
-	"go.uber.org/fx"
 )
 
 // @title           Backend API
@@ -33,9 +35,12 @@ func main() {
 			infra.NewLogger,
 			infra.NewConfig,
 			infra.NewPostgresConnection,
-			queries.NewUserRepo,
-			service.NewAuth,
-			service.NewUser,
+			fx.Annotate(
+				userRepo.NewRepository,
+				fx.As(new(repository.UserRepository)),
+			),
+			user.NewService,
+			auth.NewService,
 		),
 		/*
 			fx.WithLogger(func(lc fx.Lifecycle, logger *infra.Logger) fxevent.Logger {

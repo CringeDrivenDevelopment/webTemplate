@@ -1,28 +1,30 @@
 package handlers
 
 import (
-	"backend/internal/infra"
-	"backend/internal/interfaces"
-	"backend/internal/service"
-	"backend/internal/transport/api/dto"
-	"backend/pkg/utils"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
+
+	"backend/internal/infra"
+	"backend/internal/service"
+	"backend/internal/service/auth"
+	"backend/internal/service/user"
+	"backend/internal/transport/api/dto"
+	"backend/pkg/utils"
 )
 
 type Auth struct {
-	userService interfaces.UserService
-	authService interfaces.AuthService
+	userService service.UserService
+	authService service.AuthService
 
 	logger *infra.Logger
 }
 
 // NewAuth - создать новый экземпляр обработчика
-func NewAuth(userService *service.User, authService *service.Auth, logger *infra.Logger, router *echo.Echo) *Auth {
+func NewAuth(userService *user.Service, authService *auth.Service, logger *infra.Logger, router *echo.Echo) *Auth {
 	result := &Auth{
 		userService: userService,
 		authService: authService,
@@ -74,7 +76,7 @@ func (h *Auth) login(echoCtx echo.Context) error {
 			return utils.Convert(err, h.logger)
 		}
 	} else {
-		if err := h.authService.VerifyPassword(user, data.Password); err != nil {
+		if err = h.authService.VerifyPassword(user, data.Password); err != nil {
 			h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
 
 			return utils.Convert(err, h.logger)

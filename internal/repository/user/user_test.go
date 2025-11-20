@@ -1,4 +1,4 @@
-package queries
+package user
 
 import (
 	"context"
@@ -12,6 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"backend/internal/model"
 )
 
 func TestCreateUser(t *testing.T) {
@@ -31,7 +33,7 @@ func TestCreateUser(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, gormDB)
 
-	userRepo := NewUserRepo(gormDB)
+	userRepo := NewRepository(gormDB)
 
 	passwordHash, err := argon2id.CreateHash("Very_strong_password1235", argon2id.DefaultParams)
 	id := ulid.Make().String()
@@ -45,14 +47,14 @@ func TestCreateUser(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "users" ("id","email","password_hash") VALUES ($1,$2,$3)`)).WithArgs(id, email, passwordHash).WillReturnError(fmt.Errorf("user with that email already exists"))
 	mock.ExpectRollback()
-	err = userRepo.CreateUser(context.Background(), User{ID: id, Email: email, PasswordHash: passwordHash})
+	err = userRepo.Create(context.Background(), model.User{ID: id, Email: email, PasswordHash: passwordHash})
 	assert.Nil(t, err)
-	err = userRepo.CreateUser(context.Background(), User{ID: id, Email: email, PasswordHash: passwordHash})
+	err = userRepo.Create(context.Background(), model.User{ID: id, Email: email, PasswordHash: passwordHash})
 	assert.NotNil(t, err)
 	err = mock.ExpectationsWereMet()
 	assert.Nil(t, err)
-
 }
+
 func TestGetUserByEmail(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.Nil(t, err)
@@ -70,7 +72,7 @@ func TestGetUserByEmail(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, gormDB)
 
-	userRepo := NewUserRepo(gormDB)
+	userRepo := NewRepository(gormDB)
 
 	passwordHash, err := argon2id.CreateHash("Very_strong_password1235", argon2id.DefaultParams)
 	id := ulid.Make().String()
@@ -83,14 +85,15 @@ func TestGetUserByEmail(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE LOWER(users.email) = $1 ORDER BY  "users"."id" LIMIT $2`)).WithArgs(email, 1).WillReturnRows(sqlmock.NewRows([]string{"id", "email", "password_hash"}).AddRow(id, email, passwordHash))
 
-	err = userRepo.CreateUser(context.Background(), User{ID: id, Email: email, PasswordHash: passwordHash})
+	err = userRepo.Create(context.Background(), model.User{ID: id, Email: email, PasswordHash: passwordHash})
 	assert.Nil(t, err)
 	user, err := userRepo.GetUserByEmail(context.Background(), email)
 	assert.Nil(t, err)
 	err = mock.ExpectationsWereMet()
 	assert.Nil(t, err)
-	assert.Equal(t, User{ID: id, Email: email, PasswordHash: passwordHash}, user)
+	assert.Equal(t, model.User{ID: id, Email: email, PasswordHash: passwordHash}, user)
 }
+
 func TestGetUserByID(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.Nil(t, err)
@@ -108,7 +111,7 @@ func TestGetUserByID(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, gormDB)
 
-	userRepo := NewUserRepo(gormDB)
+	userRepo := NewRepository(gormDB)
 
 	passwordHash, err := argon2id.CreateHash("Very_strong_password1235", argon2id.DefaultParams)
 	id := ulid.Make().String()
@@ -121,11 +124,11 @@ func TestGetUserByID(t *testing.T) {
 	mock.ExpectCommit()
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users" WHERE "users"."id" = $1 ORDER BY  "users"."id" LIMIT $2`)).WithArgs(id, 1).WillReturnRows(sqlmock.NewRows([]string{"id", "email", "password_hash"}).AddRow(id, email, passwordHash))
 
-	err = userRepo.CreateUser(context.Background(), User{ID: id, Email: email, PasswordHash: passwordHash})
+	err = userRepo.Create(context.Background(), model.User{ID: id, Email: email, PasswordHash: passwordHash})
 	assert.Nil(t, err)
 	user, err := userRepo.GetUserByID(context.Background(), id)
 	assert.Nil(t, err)
 	err = mock.ExpectationsWereMet()
 	assert.Nil(t, err)
-	assert.Equal(t, User{ID: id, Email: email, PasswordHash: passwordHash}, user)
+	assert.Equal(t, model.User{ID: id, Email: email, PasswordHash: passwordHash}, user)
 }
