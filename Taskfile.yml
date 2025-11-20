@@ -139,7 +139,7 @@ tasks:
         
         ERR=0
         go test -coverpkg="$TARGET_PKGS" \
-          -coverprofile={{.COVERAGE_DIR}}/$MOD.out \
+          -coverprofile={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} \
           -covermode=atomic \
           $(echo "$TARGET_PKGS" | tr "," " ") || ERR=1
         
@@ -150,7 +150,7 @@ tasks:
         
         echo
         echo "📊 Покрытие модуля $MOD:"
-        go tool cover -func={{.COVERAGE_DIR}}/$MOD.out | tail -n1
+        go tool cover -func={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} | tail -n1
   
 
   dcu:
