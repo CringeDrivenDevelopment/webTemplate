@@ -1,9 +1,6 @@
 package main
 
 import (
-	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
-
 	"backend/internal/infra"
 	"backend/internal/repository"
 	userRepo "backend/internal/repository/user"
@@ -11,6 +8,8 @@ import (
 	"backend/internal/service/user"
 	"backend/internal/transport/api/handlers"
 	"backend/internal/transport/api/middlewares"
+
+	"go.uber.org/fx"
 )
 
 // @title           Backend API
@@ -43,9 +42,11 @@ func main() {
 			user.NewService,
 			auth.NewService,
 		),
-		fx.WithLogger(func(lc fx.Lifecycle, logger *infra.Logger) fxevent.Logger {
-			return &infra.ZapFxLogger{Logger: logger.Zap}
-		}),
+		/*
+			fx.WithLogger(func(lc fx.Lifecycle, logger *infra.Logger) fxevent.Logger {
+				return &infra.ZapFxLogger{Logger: logger.Zap}
+			}),
+		*/
 		fx.Invoke(func(auth *handlers.Auth) {
 			// need each of controllers, to register them
 

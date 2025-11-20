@@ -12,6 +12,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 5s
+    restart: unless-stopped
 
   backend:
     build:
@@ -24,3 +25,4 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    restart: unless-stopped
