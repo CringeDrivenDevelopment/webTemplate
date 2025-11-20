@@ -59,6 +59,18 @@ jobs:
       modules: ${{ needs.extract-vars.outputs.modules }}
       go-version: ${{ needs.extract-vars.outputs.go-version }}
 
+  coverage:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/test-coverage-reusable.yaml
+    needs: test
+    with:
+      modules: ${{ needs.extract-vars.outputs.modules }}
+      go-version: ${{ needs.extract-vars.outputs.go-version }}
+      gist-id: "33fad6beea65140d890305e435b5b0ab"
+    secrets:
+      GIST_SECRET: ${{ secrets.GIST_SECRET }}
+
+
   build-and-push-image:
     needs: test
     runs-on: ubuntu-latest

@@ -17,6 +17,9 @@ vars:
   SWAG: '{{.BIN_DIR}}/swag'
   SQLC: '{{.BIN_DIR}}/sqlc'
 
+  COVERAGE_DIR: '{{.ROOT_DIR}}/coverage'
+  COVERAGE_FILE: total.out
+
 tasks:
   install-formatters:
     desc: "Installs gci and gofumpt formatters in ./bin"
@@ -112,6 +115,44 @@ tasks:
         ERR=0
         go test -v ./... || ERR=1
         exit $ERR
+
+  test-coverage:
+    desc: "Тесты с покрытием бизнес-логики (service/repository) для модуля backend"
+    cmds:
+      - |
+        echo "🧪 Запускаем расчёт покрытия..."
+        rm -rf {{.COVERAGE_DIR}}
+        mkdir -p {{.COVERAGE_DIR}}
+        
+        MOD="backend"
+        echo "📦 Обрабатываем модуль: $MOD"
+        
+        TARGET_PKGS=$(go list ./... \
+          | grep -E '/(internal/(service|repository))' \
+          | grep -vE '/(mocks|testdata|pkg|api|cmd)' \
+          | paste -sd "," -)
+        
+        if [ -z "$TARGET_PKGS" ]; then
+          echo "⚠️  Нет подходящих пакетов"
+          exit 1
+        fi
+        
+        ERR=0
+        go test -coverpkg="$TARGET_PKGS" \
+          -coverprofile={{.COVERAGE_DIR}}/$MOD.out \
+          -covermode=atomic \
+          $(echo "$TARGET_PKGS" | tr "," " ") || ERR=1
+        
+        if [ $ERR -ne 0 ]; then
+          echo "❌ Ошибки во время тестов"
+          exit $ERR
+        fi
+        
+        echo
+        echo "📊 Покрытие модуля $MOD:"
+        go tool cover -func={{.COVERAGE_DIR}}/$MOD.out | tail -n1
+  
+
   dcu:
     cmds:
       - docker compose -f dev-compose.yml up -d
