@@ -1,43 +1,30 @@
 stages:
-  - codegen
-  - test-lint
+  - codegen-test-lint
   - build
   - e2e
   - push
 
-codegen:
-  stage: codegen
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_HOST: "tcp://docker:2376"
+  DOCKER_CERT_PATH: "/certs/client"
+  DOCKER_TLS_VERIFY: "1"
+  REGISTRY: $CI_REGISTRY
+  IMAGE_NAME: "$CI_PROJECT_PATH"
+  TAG: $CI_COMMIT_REF_NAME
+  CACHE_TAG: "cache-${CI_COMMIT_REF_NAME}"
+
+codegen-test-lint:
+  stage: codegen-test-lint
   image: golang:1.25.4
-  variables:
-    TASK_VERSION: "3.45.5"
   before_script:
-    - curl -sL https://github.com/go-task/task/releases/download/v${TASK_VERSION}/task_linux_amd64.tar.gz | tar xz
-    - mv task /usr/local/bin/
+    - curl -sL https://taskfile.dev/install.sh | sh
+    - ./bin/task --version
   script:
+    - go mod tidy
     - task format
     - task mockery:gen
     - task swag
-  rules:
-    - changes:
-        - "**/*"
-      when: on_success
-    - changes:
-        - "compose.yml"
-        - "README.md"
-      when: never
-
-test-lint:
-  dependencies:
-    - codegen
-  stage: test-lint
-  image: golang:1.25.4
-  variables:
-    TASK_VERSION: "3.45.5"
-  before_script:
-    - curl -sL https://github.com/go-task/task/releases/download/v${TASK_VERSION}/task_linux_amd64.tar.gz | tar xz
-    - mv task /usr/local/bin/
-  script:
-    - task format
     - task lint
     - task test
   rules:
@@ -51,24 +38,25 @@ test-lint:
 
 build:
   dependencies:
-    - test-lint
+    - codegen-test-lint
   stage: build
   image: docker:27
   services:
     - docker:27-dind
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_HOST: "tcp://docker:2376"
-    DOCKER_CERT_PATH: "/certs/client"
-    DOCKER_TLS_VERIFY: "1"
-    REGISTRY: $CI_REGISTRY
-    IMAGE_NAME: "$CI_PROJECT_PATH"
-    TAG: $CI_COMMIT_REF_NAME
   before_script:
     - until docker info; do sleep 1; done
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
   script:
-    - docker build -t ${REGISTRY}/${IMAGE_NAME}:${TAG} .
+    # Try to pull previous image for cache (ignore errors if it doesn't exist)
+    - docker pull ${REGISTRY}/${IMAGE_NAME}:${CACHE_TAG} || true
+
+    # Build with inline caching
+    - docker build
+      --cache-from ${REGISTRY}/${IMAGE_NAME}:${CACHE_TAG}
+      --cache-to type=inline
+      -t ${REGISTRY}/${IMAGE_NAME}:${TAG}
+      -t ${REGISTRY}/${IMAGE_NAME}:${CACHE_TAG}
+      .
   artifacts:
     paths:
       - .docker_image_built
@@ -89,22 +77,13 @@ e2e:
   image: docker:27
   services:
     - docker:27-dind
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_HOST: "tcp://docker:2376"
-    DOCKER_CERT_PATH: "/certs/client"
-    DOCKER_TLS_VERIFY: "1"
-    REGISTRY: $CI_REGISTRY
-    IMAGE_NAME: "$CI_PROJECT_PATH"
-    TAG: $CI_COMMIT_REF_NAME
   before_script:
     - until docker info; do sleep 1; done
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker pull ${REGISTRY}/${IMAGE_NAME}:${TAG}
     - docker tag ${REGISTRY}/${IMAGE_NAME}:${TAG} ${CI_PROJECT_NAME}:latest
   script:
-    - cd tests/e2e
-    - ./run.sh
+    - cd tests/e2e && ./run.sh
   rules:
     - changes:
         - "**/*"
@@ -121,14 +100,6 @@ push:
   stage: push
   services:
     - docker:27-dind
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_HOST: "tcp://docker:2376"
-    DOCKER_CERT_PATH: "/certs/client"
-    DOCKER_TLS_VERIFY: "1"
-    REGISTRY: $CI_REGISTRY
-    IMAGE_NAME: "$CI_PROJECT_PATH"
-    TAG: $CI_COMMIT_REF_NAME
   before_script:
     - until docker info; do sleep 1; done
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin

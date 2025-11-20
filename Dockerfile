@@ -63,8 +63,9 @@ RUN useradd -u ${UID} \
     appuser
 USER appuser
 
-# Copy binary
+# Copy binary and docs
 COPY --from=build --chown=appuser:appuser /bin/server /bin/
+COPY --from=build --chown=appuser:appuser /src/docs /
 
 # Set run permissions
 RUN chmod +x /bin/server
