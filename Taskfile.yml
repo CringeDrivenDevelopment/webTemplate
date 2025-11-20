@@ -122,13 +122,13 @@ tasks:
     desc: "Tests with business logic coverage (service/repository)"
     cmds:
       - |
-        echo "🧪 Запускаем расчёт покрытия..."
+        echo "🧪 Starting coverage calc..."
         rm -rf {{.COVERAGE_DIR}}
         mkdir -p {{.COVERAGE_DIR}}
         
         ERR=0
         for mod in {{.MODULES}}; do
-          echo "📦 Обрабатываем модуль: $mod"
+          echo "📦 Working on: $mod"
         
           TARGET_PKGS=$(go list ./$mod/... \
             | grep -E '/(internal/(service|repository))' \
@@ -136,7 +136,7 @@ tasks:
             | paste -sd "," -)
         
           if [ -z "$TARGET_PKGS" ]; then
-            echo "⚠️  Нет подходящих пакетов в $mod"
+            echo "⚠️  No targeted packages in $mod"
             continue
           fi
         
@@ -147,12 +147,12 @@ tasks:
         done
         
         if [ $ERR -ne 0 ]; then
-          echo "❌ Ошибки во время тестов"
+          echo "❌ Errors in tests"
           exit $ERR
         fi
         
         echo
-        echo "📊 Покрытие по каждому модулю:"
+        echo "📊 Coverage for each module:"
         for mod in {{.MODULES}}; do
           OUTFILE="{{.COVERAGE_DIR}}/$mod.out"
           if [ -f "$OUTFILE" ]; then
@@ -162,7 +162,7 @@ tasks:
         done
         
         echo
-        echo "📦 Склеиваем все покрытия..."
+        echo "📦 Creating total coverage..."
         {
           echo "mode: atomic"
           find {{.COVERAGE_DIR}} -type f -name '*.out' ! -name '{{.COVERAGE_FILE}}' \
@@ -170,7 +170,7 @@ tasks:
         } > {{.COVERAGE_DIR}}/{{.COVERAGE_FILE}}
         
         echo
-        echo "🧾 Общее покрытие по всем модулям:"
+        echo "🧾 Total coverage:"
         go tool cover -func={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} | tail -n1
   
 
