@@ -1,6 +1,8 @@
 package main
 
 import (
+	"go.uber.org/fx"
+
 	"backend/internal/infra"
 	"backend/internal/repository"
 	userRepo "backend/internal/repository/user"
@@ -8,8 +10,6 @@ import (
 	"backend/internal/service/user"
 	"backend/internal/transport/api/handlers"
 	"backend/internal/transport/api/middlewares"
-
-	"go.uber.org/fx"
 )
 
 // @title           Backend API
