@@ -2,7 +2,7 @@
 // github.com/vektra/mockery
 // template: testify
 
-package interfaces
+package service
 
 import (
 	"backend/internal/model"

@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"backend/internal/infra"
-	"backend/internal/interfaces"
+	"backend/internal/service"
 	"backend/internal/service/auth"
 	"backend/internal/service/user"
 	"backend/internal/transport/api/dto"
@@ -17,8 +17,8 @@ import (
 )
 
 type Auth struct {
-	userService interfaces.UserService
-	authService interfaces.AuthService
+	userService service.UserService
+	authService service.AuthService
 
 	logger *infra.Logger
 }

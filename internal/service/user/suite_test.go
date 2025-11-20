@@ -5,17 +5,17 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	interfaceMocks "backend/internal/interfaces/mocks"
+	repositoryMocks "backend/internal/repository/mocks"
 )
 
 type ServiceSuite struct {
 	suite.Suite
-	userRepository *interfaceMocks.MockUserRepository
+	userRepository *repositoryMocks.MockUserRepository
 	service        *Service
 }
 
 func (s *ServiceSuite) SetupTest() {
-	s.userRepository = interfaceMocks.NewMockUserRepository(s.T())
+	s.userRepository = repositoryMocks.NewMockUserRepository(s.T())
 	s.service = NewService(s.userRepository)
 }
 

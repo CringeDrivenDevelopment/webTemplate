@@ -75,7 +75,7 @@ tasks:
         [ -f {{.SWAG}} ] || {
           mkdir -p {{.BIN_DIR}}
           echo "📦 Installing swag {{.SWAG_VERSION}}..."
-          GOBIN={{.BIN_DIR}} g ьщo install github.com/swaggo/swag/cmd/swag@{{.SWAG_VERSION}}
+          GOBIN={{.BIN_DIR}} go install github.com/swaggo/swag/cmd/swag@{{.SWAG_VERSION}}
         }
     status:
       - test -x {{.SWAG}}

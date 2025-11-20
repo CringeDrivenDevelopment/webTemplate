@@ -1,13 +1,13 @@
 package user
 
 import (
-	"backend/internal/interfaces"
+	"backend/internal/repository"
 )
 
 type Service struct {
-	repository interfaces.UserRepository
+	repository repository.UserRepository
 }
 
-func NewService(repository interfaces.UserRepository) *Service {
+func NewService(repository repository.UserRepository) *Service {
 	return &Service{repository: repository}
 }

@@ -1,4 +1,4 @@
-package interfaces
+package service
 
 import (
 	"context"
@@ -6,20 +6,22 @@ import (
 	"backend/internal/model"
 )
 
-type UserRepository interface {
-	Create(ctx context.Context, user model.User) error
-	GetUserByEmail(ctx context.Context, email string) (model.User, error)
-	GetUserByID(ctx context.Context, id string) (model.User, error)
-}
+// AuthService defines auth service interface
 
 type AuthService interface {
 	VerifyToken(authHeader string) (string, error)
+
 	VerifyPassword(user model.User, password string) error
+
 	GenerateToken(userID string) (string, error)
 }
 
+// UserService defines user service interface
+
 type UserService interface {
 	Create(ctx context.Context, email, password string) (string, error)
+
 	GetByID(ctx context.Context, id string) (model.User, error)
+
 	GetByEmail(ctx context.Context, email string) (model.User, error)
 }

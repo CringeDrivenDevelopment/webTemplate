@@ -2,12 +2,12 @@ package user
 
 import "gorm.io/gorm"
 
-type UserRepository struct {
+type Repository struct {
 	db *gorm.DB
 }
 
-func NewRepository(db *gorm.DB) *UserRepository {
-	return &UserRepository{
+func NewRepository(db *gorm.DB) *Repository {
+	return &Repository{
 		db: db,
 	}
 }
