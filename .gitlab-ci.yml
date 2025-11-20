@@ -44,7 +44,7 @@ build-e2e-push:
   services:
     - docker:27-dind
   before_script:
-    - apk add --no-cache bash
+    - apk add --no-cache bash curl
     - until docker info; do sleep 1; done
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
   script:
