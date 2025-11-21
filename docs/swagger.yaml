@@ -28,11 +28,11 @@ info:
   title: Backend API
   version: "1.0"
 paths:
-  /api/login:
+  /api/auth/v1/login:
     post:
       consumes:
       - application/json
-      description: Войти в аккаунт, также выполняет функцию регистрации
+      description: Вход в аккаунт
       parameters:
       - description: Auth data
         in: body
@@ -60,6 +60,40 @@ paths:
           schema:
             $ref: '#/definitions/dto.ApiError'
       summary: Login
+      tags:
+      - auth
+  /api/user/v1/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация
+      parameters:
+      - description: Auth data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Token'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ApiError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ApiError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ApiError'
+      summary: Register
       tags:
       - auth
 securityDefinitions:
