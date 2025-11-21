@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"backend/internal/infra/queries"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra/queries"
 )
 
 // AuthService defines auth service interface

@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"backend/internal/infra/queries"
-	"backend/pkg/utils"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra/queries"
+	"github.com/CringeDrivenDevelopment/webTemplate/pkg/utils"
 )
 
 func (ur *UserRepository) Create(ctx context.Context, user queries.User) error {
@@ -20,18 +20,15 @@ func (ur *UserRepository) Create(ctx context.Context, user queries.User) error {
 	}); err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func (ur *UserRepository) GetUserByEmail(ctx context.Context, email string) (queries.User, error) {
 	rq := queries.New(ur.pgxpool)
-
 	return rq.GetUserByEmail(ctx, strings.ToLower(email))
 }
 
 func (ur *UserRepository) GetUserByID(ctx context.Context, id string) (queries.User, error) {
 	rq := queries.New(ur.pgxpool)
-
 	return rq.GetUserByID(ctx, id)
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"backend/internal/infra/queries"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra/queries"
 )
 
 func ExecInTx(ctx context.Context, pool *pgxpool.Pool, action func(tq *queries.Queries) error) error {

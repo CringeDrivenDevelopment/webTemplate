@@ -3,15 +3,15 @@ package auth
 import (
 	"context"
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"strings"
 	"time"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jackc/pgx/v5"
 
-	"backend/internal/infra/queries"
-	"backend/pkg/utils"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra/queries"
+	"github.com/CringeDrivenDevelopment/webTemplate/pkg/utils"
 )
 
 func (s *Service) Login(ctx context.Context, email, password string) (string, error) {

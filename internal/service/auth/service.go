@@ -1,10 +1,10 @@
 package auth
 
 import (
-	"backend/internal/repository"
 	"time"
 
-	"backend/internal/infra"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/repository"
 )
 
 type Service struct {

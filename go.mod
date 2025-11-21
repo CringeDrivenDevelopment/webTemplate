@@ -1,4 +1,4 @@
-module backend
+module github.com/CringeDrivenDevelopment/webTemplate
 
 go 1.25.4
 

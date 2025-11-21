@@ -91,11 +91,14 @@ linters:
 
 formatters:
   enable:
+    - gofumpt
     - gci      # import formatters
   settings:
+    gofumpt:
+      extra-rules: true
     gci:
       sections: # import sort
         - Standard  # std
         - Default   # external dependencies
-        - Prefix(backend)  # Local project imports
+        - Prefix(github.com/CringeDrivenDevelopment/webTemplate/)  # Local project imports
       no-inline-comments: false  # allow comments after imports

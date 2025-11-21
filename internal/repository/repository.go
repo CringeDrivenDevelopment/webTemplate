@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"backend/internal/infra/queries"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra/queries"
 )
 
 type UserRepository interface {

@@ -5,7 +5,7 @@
 package service
 
 import (
-	"backend/internal/infra/queries"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra/queries"
 
 	mock "github.com/stretchr/testify/mock"
 )

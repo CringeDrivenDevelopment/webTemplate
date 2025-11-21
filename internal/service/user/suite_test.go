@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	repositoryMocks "backend/internal/repository/mocks"
+	repositoryMocks "github.com/CringeDrivenDevelopment/webTemplate/internal/repository/mocks"
 )
 
 type ServiceSuite struct {

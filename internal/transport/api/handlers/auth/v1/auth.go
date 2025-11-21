@@ -1,15 +1,15 @@
 package v1
 
 import (
-	"backend/pkg/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 
-	"backend/internal/infra"
-	"backend/internal/service"
-	"backend/internal/service/auth"
-	"backend/internal/transport/api/dto"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/service"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/service/auth"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/transport/api/dto"
+	"github.com/CringeDrivenDevelopment/webTemplate/pkg/utils"
 )
 
 type Auth struct {
@@ -25,7 +25,6 @@ func NewAuth(authService *auth.Service, logger *infra.Logger, router *echo.Echo)
 	}
 
 	router.POST("/api/login", result.login)
-
 	return result
 }
 
@@ -40,15 +39,14 @@ func NewAuth(authService *auth.Service, logger *infra.Logger, router *echo.Echo)
 // @Failure      400  {object}  dto.ApiError
 // @Failure      401  {object}  dto.ApiError
 // @Failure      500  {object}  dto.ApiError
-// @Router       /api/login [post]
+// @Router       /api/auth/v1/login [post]
 func (h *Auth) login(echoCtx echo.Context) error {
 	var data dto.AuthData
-
 	if err := echoCtx.Bind(&data); err != nil {
 		return err
 	}
-	ctx := echoCtx.Request().Context()
 
+	ctx := echoCtx.Request().Context()
 	h.logger.Info("login: " + data.Email)
 
 	token, err := h.authService.Login(ctx, data.Email, data.Password)

@@ -1,19 +1,19 @@
 package user
 
 import (
-	"backend/pkg/utils"
 	"context"
 	"errors"
+
 	"github.com/alexedwards/argon2id"
 	"github.com/jackc/pgx/v5"
 	"github.com/oklog/ulid/v2"
 
-	"backend/internal/infra/queries"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra/queries"
+	"github.com/CringeDrivenDevelopment/webTemplate/pkg/utils"
 )
 
 func (s *Service) Register(ctx context.Context, email, password string) (string, error) {
 	if _, err := s.repository.GetUserByEmail(ctx, email); err == nil {
-		// User already exists
 		return "", utils.ErrEmailAlreadySignup
 	} else if !errors.Is(err, pgx.ErrNoRows) {
 		// Some other error occurred

@@ -1,7 +1,7 @@
 package user
 
 import (
-	"backend/internal/repository"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/repository"
 )
 
 type Service struct {

@@ -8,8 +8,8 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/stretchr/testify/mock"
 
-	"backend/internal/infra/queries"
-	"backend/pkg/utils"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra/queries"
+	"github.com/CringeDrivenDevelopment/webTemplate/pkg/utils"
 )
 
 func (s *ServiceSuite) TestRegister() {
