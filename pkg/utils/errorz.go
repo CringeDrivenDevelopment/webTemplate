@@ -13,6 +13,7 @@ import (
 var (
 	ErrInvalidToken        = errors.New("invalid token")
 	ErrInvalidPassword     = errors.New("invalid password")
+	ErrInvalidUser         = errors.New("invalid user")
 	ErrContextUserNotFound = errors.New("user not found in context")
 	ErrEmailAlreadySignup  = errors.New("email already signup")
 )
@@ -28,6 +29,9 @@ func Convert(functionError error, logger *infra.Logger) error {
 		return echo.ErrConflict
 	}
 	if errors.Is(functionError, ErrInvalidPassword) {
+		return echo.ErrUnauthorized
+	}
+	if errors.Is(functionError, ErrInvalidUser) {
 		return echo.ErrUnauthorized
 	}
 
