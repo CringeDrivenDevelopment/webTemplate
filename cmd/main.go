@@ -32,6 +32,7 @@ func main() {
 	}
 	logger, err := infra.NewLogger(cfg)
 	if err != nil {
+	// TODO: add tracing, logging and metrics
 
 		panic(err)
 	}
