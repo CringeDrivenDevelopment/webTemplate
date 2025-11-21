@@ -58,7 +58,7 @@ func NewLogger(log *infra.Logger) echo.MiddlewareFunc {
 
 			case n >= 400:
 
-				log.With(zap.Error(err)).Warn("Client error", fields)
+				log.Warn("Client error", fields)
 
 			case n >= 300:
 

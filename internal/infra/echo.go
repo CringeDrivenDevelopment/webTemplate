@@ -5,12 +5,23 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/MarceloPetrucio/go-scalar-api-reference"
 	"github.com/bytedance/sonic"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
+
+func getSpec() (string, error) {
+	return scalar.ApiReferenceHTML(&scalar.Options{
+		SpecURL: "./docs/swagger.json",
+		CustomOptions: scalar.CustomOptions{
+			PageTitle: "Backend API",
+		},
+		DarkMode: true,
+	})
+}
 
 type sonicJSONSerializer struct{}
 
@@ -28,7 +39,12 @@ func (s *sonicJSONSerializer) Deserialize(c echo.Context, i interface{}) error {
 	return sonic.ConfigStd.NewDecoder(c.Request().Body).Decode(i)
 }
 
-func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.MiddlewareFunc) *echo.Echo {
+func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.MiddlewareFunc) (*echo.Echo, error) {
+	swaggerContent, err := getSpec()
+	if err != nil {
+		return nil, err
+	}
+
 	router := echo.New()
 
 	if !cfg.Debug {
@@ -36,10 +52,6 @@ func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.Middl
 	}
 
 	router.JSONSerializer = &sonicJSONSerializer{}
-
-	router.GET("/api/ping", func(c echo.Context) error {
-		return c.String(http.StatusOK, "pong")
-	})
 
 	router.HideBanner = true
 
@@ -52,6 +64,14 @@ func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.Middl
 	}))
 
 	router.Use(loggerWare)
+
+	router.GET("/api/ping", func(c echo.Context) error {
+		return c.String(http.StatusOK, "pong")
+	})
+
+	router.GET("/api/docs", func(c echo.Context) error {
+		return c.HTML(200, swaggerContent)
+	})
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
@@ -75,5 +95,5 @@ func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.Middl
 		},
 	})
 
-	return router
+	return router, nil
 }
