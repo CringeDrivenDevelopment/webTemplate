@@ -8,16 +8,10 @@ import (
 )
 
 type User struct {
-	ID string `gorm:"not null"`
-
-	Email string `gorm:"unique;not null"`
-
+	ID           string `gorm:"not null"`
+	Email        string `gorm:"unique;not null"`
 	PasswordHash string `gorm:"not null"`
 }
-
-// по идее надо бы для каждого слоя свой model файл делать и задрачивать конвертеры для каждого
-
-// но мы заебемся это делать
 
 func (*User) TableName() string {
 	return "users"

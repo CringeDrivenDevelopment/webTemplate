@@ -1,15 +1,25 @@
 package user
 
 import (
+	"backend/pkg/utils"
 	"context"
-
+	"errors"
 	"github.com/alexedwards/argon2id"
+	"github.com/jackc/pgx/v5"
 	"github.com/oklog/ulid/v2"
 
 	"backend/internal/infra/queries"
 )
 
-func (s *Service) Create(ctx context.Context, email, password string) (string, error) {
+func (s *Service) Register(ctx context.Context, email, password string) (string, error) {
+	if _, err := s.repository.GetUserByEmail(ctx, email); err == nil {
+		// User already exists
+		return "", utils.ErrEmailAlreadySignup
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		// Some other error occurred
+		return "", err
+	}
+
 	id := ulid.Make().String()
 
 	passwordHash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
@@ -22,7 +32,7 @@ func (s *Service) Create(ctx context.Context, email, password string) (string, e
 		Email:        email,
 		PasswordHash: passwordHash,
 	}); err != nil {
-		return id, err
+		return "", err
 	}
 
 	return id, nil

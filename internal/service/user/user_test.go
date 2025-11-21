@@ -4,19 +4,16 @@ import (
 	"context"
 	"errors"
 
-	"github.com/alexedwards/argon2id"
+	"github.com/jackc/pgx/v5"
 	"github.com/oklog/ulid/v2"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"backend/internal/infra/queries"
+	"backend/pkg/utils"
 )
 
-func (s *ServiceSuite) TestCreateUser() {
+func (s *ServiceSuite) TestRegister() {
 	ctx := context.Background()
-
-	passwordHash, err := argon2id.CreateHash("Very_strong_password1235", argon2id.DefaultParams)
-	assert.Nil(s.T(), err)
 
 	tests := []struct {
 		name          string
@@ -24,28 +21,68 @@ func (s *ServiceSuite) TestCreateUser() {
 		password      string
 		mockSetup     func()
 		expectedError error
+		checkID       bool
 	}{
 		{
-			name:     "Create user success",
-			email:    "goodemail@gmail.com",
-			password: passwordHash,
+			name:     "successful registration",
+			email:    "newuser@gmail.com",
+			password: "SecurePassword123",
 			mockSetup: func() {
+				// Email doesn't exist (returns ErrNoRows)
+				s.userRepository.On("GetUserByEmail", ctx, "newuser@gmail.com").
+					Return(queries.User{}, pgx.ErrNoRows).Once()
+
+				// Create succeeds
 				s.userRepository.On("Create", ctx, mock.MatchedBy(func(u queries.User) bool {
-					return u.Email == "goodemail@gmail.com"
-				})).Return(nil)
+					return u.Email == "newuser@gmail.com" && u.ID != "" && u.PasswordHash != ""
+				})).Return(nil).Once()
 			},
 			expectedError: nil,
+			checkID:       true,
 		},
 		{
-			name:     "Not unique email",
-			email:    "checkemail@gmail.com",
-			password: passwordHash,
+			name:     "email already exists",
+			email:    "existing@gmail.com",
+			password: "SecurePassword123",
 			mockSetup: func() {
-				s.userRepository.On("Create", ctx, mock.MatchedBy(func(u queries.User) bool {
-					return u.Email == "checkemail@gmail.com"
-				})).Return(errors.New("такой email уже зарегистирован"))
+				// Email already exists
+				s.userRepository.On("GetUserByEmail", ctx, "existing@gmail.com").
+					Return(queries.User{
+						ID:    "existing-id",
+						Email: "existing@gmail.com",
+					}, nil).Once()
 			},
-			expectedError: errors.New("такой email уже зарегистирован"),
+			expectedError: utils.ErrEmailAlreadySignup,
+			checkID:       false,
+		},
+		{
+			name:     "database error on email check",
+			email:    "test@gmail.com",
+			password: "SecurePassword123",
+			mockSetup: func() {
+				// Database error
+				s.userRepository.On("GetUserByEmail", ctx, "test@gmail.com").
+					Return(queries.User{}, errors.New("database connection error")).Once()
+			},
+			expectedError: errors.New("database connection error"),
+			checkID:       false,
+		},
+		{
+			name:     "database error on create",
+			email:    "newuser2@gmail.com",
+			password: "SecurePassword123",
+			mockSetup: func() {
+				// Email doesn't exist
+				s.userRepository.On("GetUserByEmail", ctx, "newuser2@gmail.com").
+					Return(queries.User{}, pgx.ErrNoRows).Once()
+
+				// Create fails
+				s.userRepository.On("Create", ctx, mock.MatchedBy(func(u queries.User) bool {
+					return u.Email == "newuser2@gmail.com"
+				})).Return(errors.New("insert failed")).Once()
+			},
+			expectedError: errors.New("insert failed"),
+			checkID:       false,
 		},
 	}
 
@@ -53,17 +90,24 @@ func (s *ServiceSuite) TestCreateUser() {
 		s.Run(test.name, func() {
 			test.mockSetup()
 
-			_, err = s.service.Create(ctx, test.email, test.password)
+			id, err := s.service.Register(ctx, test.email, test.password)
 
 			if test.expectedError != nil {
 				s.Error(err)
 				s.Equal(test.expectedError.Error(), err.Error())
+				s.Empty(id)
 			} else {
 				s.NoError(err)
+				if test.checkID {
+					s.NotEmpty(id)
+					// Verify it's a valid ULID
+					_, parseErr := ulid.Parse(id)
+					s.NoError(parseErr)
+				}
 			}
-		})
 
-		s.userRepository.AssertExpectations(s.T())
+			s.userRepository.AssertExpectations(s.T())
+		})
 	}
 }
 
@@ -81,7 +125,7 @@ func (s *ServiceSuite) TestGetByID() {
 		expectedError error
 	}{
 		{
-			name: "успешное получение",
+			name: "successful retrieval",
 			id:   existingID,
 			mockSetup: func() {
 				s.userRepository.On("GetUserByID", ctx, existingID).Return(queries.User{
@@ -96,13 +140,24 @@ func (s *ServiceSuite) TestGetByID() {
 			expectedError: nil,
 		},
 		{
-			name: "не существующий айди",
+			name: "user not found",
 			id:   nonExistingID,
 			mockSetup: func() {
-				s.userRepository.On("GetUserByID", ctx, nonExistingID).Return(queries.User{}, errors.New("user not found")).Once()
+				s.userRepository.On("GetUserByID", ctx, nonExistingID).
+					Return(queries.User{}, pgx.ErrNoRows).Once()
 			},
 			expectedUser:  queries.User{},
-			expectedError: errors.New("user not found"),
+			expectedError: pgx.ErrNoRows,
+		},
+		{
+			name: "database error",
+			id:   "some-id",
+			mockSetup: func() {
+				s.userRepository.On("GetUserByID", ctx, "some-id").
+					Return(queries.User{}, errors.New("connection timeout")).Once()
+			},
+			expectedUser:  queries.User{},
+			expectedError: errors.New("connection timeout"),
 		},
 	}
 
@@ -120,9 +175,9 @@ func (s *ServiceSuite) TestGetByID() {
 				s.Equal(test.expectedUser.ID, user.ID)
 				s.Equal(test.expectedUser.Email, user.Email)
 			}
-		})
 
-		s.userRepository.AssertExpectations(s.T())
+			s.userRepository.AssertExpectations(s.T())
+		})
 	}
 }
 
@@ -137,7 +192,7 @@ func (s *ServiceSuite) TestGetByEmail() {
 		expectedError error
 	}{
 		{
-			name:  "успешное получение",
+			name:  "successful retrieval",
 			email: "existing@gmail.com",
 			mockSetup: func() {
 				s.userRepository.On("GetUserByEmail", ctx, "existing@gmail.com").Return(queries.User{
@@ -152,13 +207,24 @@ func (s *ServiceSuite) TestGetByEmail() {
 			expectedError: nil,
 		},
 		{
-			name:  "не существующий email",
+			name:  "user not found",
 			email: "nonexisting@gmail.com",
 			mockSetup: func() {
-				s.userRepository.On("GetUserByEmail", ctx, "nonexisting@gmail.com").Return(queries.User{}, errors.New("user not found")).Once()
+				s.userRepository.On("GetUserByEmail", ctx, "nonexisting@gmail.com").
+					Return(queries.User{}, pgx.ErrNoRows).Once()
 			},
 			expectedUser:  queries.User{},
-			expectedError: errors.New("user not found"),
+			expectedError: pgx.ErrNoRows,
+		},
+		{
+			name:  "database error",
+			email: "error@gmail.com",
+			mockSetup: func() {
+				s.userRepository.On("GetUserByEmail", ctx, "error@gmail.com").
+					Return(queries.User{}, errors.New("database error")).Once()
+			},
+			expectedUser:  queries.User{},
+			expectedError: errors.New("database error"),
 		},
 	}
 
@@ -175,8 +241,8 @@ func (s *ServiceSuite) TestGetByEmail() {
 				s.NoError(err)
 				s.Equal(test.expectedUser.Email, user.Email)
 			}
-		})
 
-		s.userRepository.AssertExpectations(s.T())
+			s.userRepository.AssertExpectations(s.T())
+		})
 	}
 }

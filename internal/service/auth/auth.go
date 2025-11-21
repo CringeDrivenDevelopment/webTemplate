@@ -1,6 +1,9 @@
 package auth
 
 import (
+	"context"
+	"errors"
+	"github.com/jackc/pgx/v5"
 	"strings"
 	"time"
 
@@ -11,8 +14,29 @@ import (
 	"backend/pkg/utils"
 )
 
-// VerifyToken - проверить токен на подлинность
+func (s *Service) Login(ctx context.Context, email, password string) (string, error) {
+	user, err := s.repository.GetUserByEmail(ctx, email)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", utils.ErrInvalidUser
+		}
+		return "", err
+	}
 
+	err = s.VerifyPassword(user, password)
+	if err != nil {
+		return "", err
+	}
+
+	token, err := s.GenerateToken(user.ID)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+// VerifyToken - проверить токен на подлинность
 func (s *Service) VerifyToken(authHeader string) (string, error) {
 	tokenStr := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
 	if tokenStr == "" {
@@ -57,7 +81,6 @@ func (s *Service) VerifyPassword(user queries.User, password string) error {
 }
 
 // GenerateToken - создать новый JWT токен
-
 func (s *Service) GenerateToken(userID string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,

@@ -7,21 +7,16 @@ import (
 )
 
 // AuthService defines auth service interface
-
 type AuthService interface {
 	VerifyToken(authHeader string) (string, error)
-
 	VerifyPassword(user queries.User, password string) error
-
 	GenerateToken(userID string) (string, error)
+	Login(ctx context.Context, email, password string) (string, error)
 }
 
 // UserService defines user service interface
-
 type UserService interface {
-	Create(ctx context.Context, email, password string) (string, error)
-
+	Register(ctx context.Context, email, password string) (string, error)
 	GetByID(ctx context.Context, id string) (queries.User, error)
-
 	GetByEmail(ctx context.Context, email string) (queries.User, error)
 }

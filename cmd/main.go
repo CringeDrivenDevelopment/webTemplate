@@ -1,6 +1,8 @@
 package main
 
 import (
+	authV1 "backend/internal/transport/api/handlers/auth/v1"
+	userV1 "backend/internal/transport/api/handlers/user/v1"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -10,27 +12,18 @@ import (
 	userRepo "backend/internal/repository/user"
 	"backend/internal/service/auth"
 	"backend/internal/service/user"
-	"backend/internal/transport/api/handlers"
 	"backend/internal/transport/api/middlewares"
 )
 
 // @title           Backend API
-
 // @version         1.0
-
 // @host      localhost:8080
-
 // @securityDefinitions.apikey Bearer
-
 // @in header
-
 // @name Authorization
-
 // @description "Type 'Bearer TOKEN' to correctly set the API Key"
-
 func main() {
 	// TODO: log db requests
-
 	// TODO: add tracing, logging and metrics
 
 	cfg, err := infra.NewConfig()
@@ -44,32 +37,21 @@ func main() {
 	}
 
 	fx.New(
-
 		fx.Supply(logger.Zap, logger, cfg),
-
 		fx.Provide(
-
 			// REST API
-
 			infra.NewEcho,
-
 			middlewares.NewLogger,
-
-			handlers.NewAuth,
+			authV1.NewAuth,
+			userV1.NewUser,
 
 			// services and infra
-
 			infra.NewPostgresConnection,
-
 			fx.Annotate(
-
 				userRepo.New,
-
 				fx.As(new(repository.UserRepository)),
 			),
-
 			user.NewService,
-
 			auth.NewService,
 		),
 
@@ -84,10 +66,8 @@ func main() {
 			return &fxevent.ZapLogger{Logger: logger.Zap}
 		}),
 
-		fx.Invoke(func(auth *handlers.Auth) {
-			// need each of controllers, to register them
-
-			// no need to call infra, apis and services, they're deps, started automatically
-		}),
+		// need each of controllers, to register them
+		// no need to call infra, apis and services, they're deps, started automatically
+		fx.Invoke(func(auth *authV1.Auth) {}, func(user *userV1.User) {}),
 	).Run()
 }
