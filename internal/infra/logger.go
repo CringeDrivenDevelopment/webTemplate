@@ -1,10 +1,8 @@
 package infra
 
 import (
-	"context"
 	"fmt"
 
-	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 )
@@ -15,7 +13,7 @@ type Logger struct {
 	Name string
 }
 
-func NewLogger(lc fx.Lifecycle, cfg *Config) (*Logger, error) {
+func NewLogger(cfg *Config) (*Logger, error) {
 	var l Logger
 	l.Name = "main"
 
@@ -35,17 +33,6 @@ func NewLogger(lc fx.Lifecycle, cfg *Config) (*Logger, error) {
 
 	l.SugaredLogger = log.Sugar()
 	l.Zap = log
-
-	lc.Append(fx.Hook{
-		OnStart: func(_ context.Context) error {
-			l.Info("logger initialized")
-			return nil
-		},
-		OnStop: func(_ context.Context) error {
-			l.Info("logger stopped")
-			return l.Sync()
-		},
-	})
 
 	return &l, nil
 }
@@ -73,12 +60,12 @@ func (z *ZapFxLogger) LogEvent(event fxevent.Event) {
 	}
 }
 
-// type ZapGooseAdapter struct{ zap *zap.Logger }
+type ZapGooseAdapter struct{ zap *zap.Logger }
 
-// func (a *ZapGooseAdapter) Printf(format string, args ...any) {
-// 	a.zap.Sugar().Infof(format, args...)
-// }
+func (a *ZapGooseAdapter) Printf(format string, args ...any) {
+	a.zap.Sugar().Infof(format, args...)
+}
 
-// func (a *ZapGooseAdapter) Fatalf(format string, args ...interface{}) {
-// 	a.zap.Sugar().Fatalf(format, args...)
-// }
+func (a *ZapGooseAdapter) Fatalf(format string, args ...interface{}) {
+	a.zap.Sugar().Fatalf(format, args...)
+}

@@ -5,7 +5,7 @@
 package repository
 
 import (
-	"backend/internal/model"
+	"backend/internal/infra/queries"
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
@@ -39,7 +39,7 @@ func (_m *MockUserRepository) EXPECT() *MockUserRepository_Expecter {
 }
 
 // Create provides a mock function for the type MockUserRepository
-func (_mock *MockUserRepository) Create(ctx context.Context, user model.User) error {
+func (_mock *MockUserRepository) Create(ctx context.Context, user queries.User) error {
 	ret := _mock.Called(ctx, user)
 
 	if len(ret) == 0 {
@@ -47,7 +47,7 @@ func (_mock *MockUserRepository) Create(ctx context.Context, user model.User) er
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, model.User) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, queries.User) error); ok {
 		r0 = returnFunc(ctx, user)
 	} else {
 		r0 = ret.Error(0)
@@ -62,20 +62,20 @@ type MockUserRepository_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - user model.User
+//   - user queries.User
 func (_e *MockUserRepository_Expecter) Create(ctx interface{}, user interface{}) *MockUserRepository_Create_Call {
 	return &MockUserRepository_Create_Call{Call: _e.mock.On("Create", ctx, user)}
 }
 
-func (_c *MockUserRepository_Create_Call) Run(run func(ctx context.Context, user model.User)) *MockUserRepository_Create_Call {
+func (_c *MockUserRepository_Create_Call) Run(run func(ctx context.Context, user queries.User)) *MockUserRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 model.User
+		var arg1 queries.User
 		if args[1] != nil {
-			arg1 = args[1].(model.User)
+			arg1 = args[1].(queries.User)
 		}
 		run(
 			arg0,
@@ -90,28 +90,28 @@ func (_c *MockUserRepository_Create_Call) Return(err error) *MockUserRepository_
 	return _c
 }
 
-func (_c *MockUserRepository_Create_Call) RunAndReturn(run func(ctx context.Context, user model.User) error) *MockUserRepository_Create_Call {
+func (_c *MockUserRepository_Create_Call) RunAndReturn(run func(ctx context.Context, user queries.User) error) *MockUserRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetUserByEmail provides a mock function for the type MockUserRepository
-func (_mock *MockUserRepository) GetUserByEmail(ctx context.Context, email string) (model.User, error) {
+func (_mock *MockUserRepository) GetUserByEmail(ctx context.Context, email string) (queries.User, error) {
 	ret := _mock.Called(ctx, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserByEmail")
 	}
 
-	var r0 model.User
+	var r0 queries.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (queries.User, error)); ok {
 		return returnFunc(ctx, email)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) queries.User); ok {
 		r0 = returnFunc(ctx, email)
 	} else {
-		r0 = ret.Get(0).(model.User)
+		r0 = ret.Get(0).(queries.User)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, email)
@@ -151,33 +151,33 @@ func (_c *MockUserRepository_GetUserByEmail_Call) Run(run func(ctx context.Conte
 	return _c
 }
 
-func (_c *MockUserRepository_GetUserByEmail_Call) Return(user model.User, err error) *MockUserRepository_GetUserByEmail_Call {
+func (_c *MockUserRepository_GetUserByEmail_Call) Return(user queries.User, err error) *MockUserRepository_GetUserByEmail_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *MockUserRepository_GetUserByEmail_Call) RunAndReturn(run func(ctx context.Context, email string) (model.User, error)) *MockUserRepository_GetUserByEmail_Call {
+func (_c *MockUserRepository_GetUserByEmail_Call) RunAndReturn(run func(ctx context.Context, email string) (queries.User, error)) *MockUserRepository_GetUserByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetUserByID provides a mock function for the type MockUserRepository
-func (_mock *MockUserRepository) GetUserByID(ctx context.Context, id string) (model.User, error) {
+func (_mock *MockUserRepository) GetUserByID(ctx context.Context, id string) (queries.User, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUserByID")
 	}
 
-	var r0 model.User
+	var r0 queries.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (queries.User, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) queries.User); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
-		r0 = ret.Get(0).(model.User)
+		r0 = ret.Get(0).(queries.User)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, id)
@@ -217,12 +217,12 @@ func (_c *MockUserRepository_GetUserByID_Call) Run(run func(ctx context.Context,
 	return _c
 }
 
-func (_c *MockUserRepository_GetUserByID_Call) Return(user model.User, err error) *MockUserRepository_GetUserByID_Call {
+func (_c *MockUserRepository_GetUserByID_Call) Return(user queries.User, err error) *MockUserRepository_GetUserByID_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *MockUserRepository_GetUserByID_Call) RunAndReturn(run func(ctx context.Context, id string) (model.User, error)) *MockUserRepository_GetUserByID_Call {
+func (_c *MockUserRepository_GetUserByID_Call) RunAndReturn(run func(ctx context.Context, id string) (queries.User, error)) *MockUserRepository_GetUserByID_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -171,8 +171,10 @@ tasks:
         echo
         echo "🧾 Total coverage:"
         go tool cover -func={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} | tail -n1
-  
 
+  sqlc:
+    cmds:
+      - sqlc generate
   dcu:
     cmds:
       - docker compose -f dev-compose.yml up -d

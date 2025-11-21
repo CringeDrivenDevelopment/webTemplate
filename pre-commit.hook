@@ -1,6 +1,27 @@
 #!/bin/sh
 
 echo "🎨
+ Generating code..."
+
+if ! task sqlc; then
+    echo "❌
+ SQLC failed."
+    exit 1
+fi
+
+if ! task mockery:gen; then
+    echo "❌
+ Mockery failed."
+    exit 1
+fi
+
+if ! task swag; then
+    echo "❌
+ Swag failed."
+    exit 1
+fi
+
+echo "🎨
  Formatting code..."
 
 if ! task format; then
@@ -24,6 +45,12 @@ echo "🧪
 if ! task test; then
     echo "❌
  Tests failed. Please fix the issues before committing."
+    exit 1
+fi
+
+if ! cd tests/e2e && ./run.sh && cd ../..; then
+    echo "❌
+ E2E failed. Please fix the issues before committing."
     exit 1
 fi
 
