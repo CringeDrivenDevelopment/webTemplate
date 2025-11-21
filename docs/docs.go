@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/login": {
+        "/api/auth/v1/login": {
             "post": {
-                "description": "Войти в аккаунт, также выполняет функцию регистрации",
+                "description": "Вход в аккаунт",
                 "consumes": [
                     "application/json"
                 ],
@@ -28,6 +28,58 @@ const docTemplate = `{
                     "auth"
                 ],
                 "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "Auth data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AuthData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Token"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/v1/register": {
+            "post": {
+                "description": "Регистрация",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register",
                 "parameters": [
                     {
                         "description": "Auth data",
