@@ -49,7 +49,7 @@ tasks:
         find . -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GCI}} write -s standard -s default -s "prefix(backend)" {} +
       - |
         echo "🧼 Formatting with gofumpt ..."
-        find . -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GOFUMPT}} -extra -w {} +
+        find . -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GOFUMPT}} -w {} +
 
   install-golangci-lint:
     desc: "Installs golangci-lint into the bin directory"
