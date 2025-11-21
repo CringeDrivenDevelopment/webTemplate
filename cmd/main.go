@@ -23,6 +23,7 @@ import (
 func main() {
 	// TODO: log db requests
 	// TODO: add otel
+	// TODO: add scalar
 
 	fx.New(
 		fx.Provide(
