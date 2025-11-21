@@ -14,6 +14,7 @@ import (
 
 func (s *ServiceSuite) TestCreateUser() {
 	ctx := context.Background()
+
 	passwordHash, err := argon2id.CreateHash("Very_strong_password1235", argon2id.DefaultParams)
 	assert.Nil(s.T(), err)
 
@@ -63,12 +64,12 @@ func (s *ServiceSuite) TestCreateUser() {
 		})
 
 		s.userRepository.AssertExpectations(s.T())
-
 	}
 }
 
 func (s *ServiceSuite) TestGetByID() {
 	ctx := context.Background()
+
 	existingID := ulid.Make().String()
 	nonExistingID := ulid.Make().String()
 

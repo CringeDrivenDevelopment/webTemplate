@@ -11,10 +11,8 @@ import (
 )
 
 var (
-	ErrInvalidToken = errors.New("invalid token")
-
-	ErrInvalidPassword = errors.New("invalid password")
-
+	ErrInvalidToken        = errors.New("invalid token")
+	ErrInvalidPassword     = errors.New("invalid password")
 	ErrContextUserNotFound = errors.New("user not found in context")
 	ErrEmailAlreadySignup  = errors.New("email already signup")
 )
@@ -23,7 +21,6 @@ func Convert(functionError error, logger *infra.Logger) error {
 	if errors.Is(functionError, pgx.ErrNoRows) {
 		return echo.ErrNotFound
 	}
-
 	if errors.Is(functionError, ErrInvalidToken) {
 		return echo.ErrUnauthorized
 	}

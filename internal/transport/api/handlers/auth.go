@@ -18,21 +18,16 @@ import (
 
 type Auth struct {
 	userService service.UserService
-
 	authService service.AuthService
-
-	logger *infra.Logger
+	logger      *infra.Logger
 }
 
 // NewAuth - создать новый экземпляр обработчика
-
 func NewAuth(userService *user.Service, authService *auth.Service, logger *infra.Logger, router *echo.Echo) *Auth {
 	result := &Auth{
 		userService: userService,
-
 		authService: authService,
-
-		logger: logger,
+		logger:      logger,
 	}
 
 	router.POST("/api/login", result.login)
@@ -58,57 +53,36 @@ func (h *Auth) login(echoCtx echo.Context) error {
 	if err := echoCtx.Bind(&data); err != nil {
 		return err
 	}
-
 	ctx := echoCtx.Request().Context()
 
 	h.logger.Info("login: " + data.Email)
-
 	var err error
 
 	var userID string
-
 	appUser, err := h.userService.GetByEmail(ctx, data.Email)
 
 	if err != nil {
-
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-
 			h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
-
 			return utils.Convert(err, h.logger)
-
 		}
-
 		userID, err = h.userService.Create(ctx, data.Email, data.Password)
 		if err != nil {
-
 			h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
-
 			return utils.Convert(err, h.logger)
-
 		}
-
 	} else {
-
 		if err = h.authService.VerifyPassword(appUser, data.Password); err != nil {
-
 			h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
-
 			return utils.Convert(err, h.logger)
-
 		}
-
 		userID = appUser.ID
-
 	}
 
 	token, err := h.authService.GenerateToken(userID)
 	if err != nil {
-
 		h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
-
 		return utils.Convert(err, h.logger)
-
 	}
 
 	tokenData := dto.Token{
