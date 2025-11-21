@@ -9,14 +9,20 @@ import (
 
 type Config struct {
 	// DbUrl - Postgres Database connection string
+
 	// Example - "postgres://username:password@localhost:5432/database_name"
+
 	DbUrl string
 
-	DbHost     string `env:"POSTGRES_HOST" env-default:"localhost"`
-	DbPort     string `env:"POSTGRES_PORT" env-default:"5432"`
+	DbHost string `env:"POSTGRES_HOST" env-default:"localhost"`
+
+	DbPort string `env:"POSTGRES_PORT" env-default:"5432"`
+
 	DbPassword string `env:"POSTGRES_PASSWORD" env-default:"password"`
-	DbUser     string `env:"POSTGRES_USER" env-default:"postgres"`
-	DbName     string `env:"POSTGRES_DB" env-default:"backend"`
+
+	DbUser string `env:"POSTGRES_USER" env-default:"postgres"`
+
+	DbName string `env:"POSTGRES_DB" env-default:"backend"`
 
 	JwtSecret string `env:"JWT_SECRET"`
 
@@ -25,6 +31,7 @@ type Config struct {
 
 func NewConfig() (*Config, error) {
 	var cfg Config
+
 	if err := cleanenv.ReadEnv(&cfg); err != nil {
 		return nil, err
 	}

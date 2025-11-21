@@ -15,7 +15,6 @@ import (
 
 func (s *Service) VerifyToken(authHeader string) (string, error) {
 	tokenStr := strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer "))
-
 	if tokenStr == "" {
 		return "", utils.ErrInvalidToken
 	}
@@ -32,13 +31,11 @@ func (s *Service) VerifyToken(authHeader string) (string, error) {
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
-
 	if !ok {
 		return "", utils.ErrInvalidToken
 	}
 
 	userID, ok := claims["sub"].(string)
-
 	if !ok {
 		return "", utils.ErrInvalidToken
 	}
@@ -64,13 +61,10 @@ func (s *Service) VerifyPassword(user queries.User, password string) error {
 func (s *Service) GenerateToken(userID string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,
-
 		"iat": time.Now().Unix(),
-
 		"exp": time.Now().Add(s.expires).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 	return token.SignedString([]byte(s.secret))
 }

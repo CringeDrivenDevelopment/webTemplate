@@ -15,15 +15,22 @@ import (
 )
 
 // @title           Backend API
+
 // @version         1.0
 
 // @host      localhost:8080
+
 // @securityDefinitions.apikey Bearer
+
 // @in header
+
 // @name Authorization
+
 // @description "Type 'Bearer TOKEN' to correctly set the API Key"
+
 func main() {
 	// TODO: log db requests
+
 	// TODO: add tracing, logging and metrics
 
 	cfg, err := infra.NewConfig()
@@ -37,23 +44,32 @@ func main() {
 	}
 
 	fx.New(
+
 		fx.Supply(logger.Zap, logger, cfg),
 
 		fx.Provide(
+
 			// REST API
+
 			infra.NewEcho,
+
 			middlewares.NewLogger,
+
 			handlers.NewAuth,
 
 			// services and infra
 
 			infra.NewPostgresConnection,
+
 			fx.Annotate(
+
 				userRepo.New,
+
 				fx.As(new(repository.UserRepository)),
 			),
 
 			user.NewService,
+
 			auth.NewService,
 		),
 
@@ -64,6 +80,7 @@ func main() {
 					println(err)
 				}
 			}(logger.Zap)
+
 			return &fxevent.ZapLogger{Logger: logger.Zap}
 		}),
 

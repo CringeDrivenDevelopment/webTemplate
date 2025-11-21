@@ -21,53 +21,34 @@ func NewLogger(log *infra.Logger) echo.MiddlewareFunc {
 			}
 
 			req := c.Request()
-
 			res := c.Response()
 
 			fields := map[string]interface{}{
-				"remote_ip": c.RealIP(),
-
-				"latency": time.Since(start).String(),
-
-				"host": req.Host,
-
-				"request": fmt.Sprintf("%s %s", req.Method, req.RequestURI),
-
-				"status": res.Status,
-
-				"size": res.Size,
-
+				"remote_ip":  c.RealIP(),
+				"latency":    time.Since(start).String(),
+				"host":       req.Host,
+				"request":    fmt.Sprintf("%s %s", req.Method, req.RequestURI),
+				"status":     res.Status,
+				"size":       res.Size,
 				"user_agent": req.UserAgent(),
 			}
 
 			id := req.Header.Get(echo.HeaderXRequestID)
-
 			if id == "" {
 				id = res.Header().Get(echo.HeaderXRequestID)
 			}
-
 			fields["request_id"] = id
 
 			n := res.Status
-
 			switch {
-
 			case n >= 500:
-
 				log.With(zap.Error(err)).Error("Server error", fields)
-
 			case n >= 400:
-
 				log.Warn("Client error", fields)
-
 			case n >= 300:
-
 				log.Info("Redirection", fields)
-
 			default:
-
 				log.Info("Success", fields)
-
 			}
 
 			return nil

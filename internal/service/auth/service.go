@@ -7,8 +7,7 @@ import (
 )
 
 type Service struct {
-	secret string
-
+	secret  string
 	expires time.Duration
 }
 
@@ -16,8 +15,7 @@ type Service struct {
 
 func NewService(cfg *infra.Config) *Service {
 	return &Service{
-		secret: cfg.JwtSecret,
-
+		secret:  cfg.JwtSecret,
 		expires: time.Hour,
 	}
 }
