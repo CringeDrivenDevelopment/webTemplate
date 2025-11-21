@@ -24,17 +24,18 @@ import (
 // @description "Type 'Bearer TOKEN' to correctly set the API Key"
 func main() {
 	// TODO: log db requests
-	// TODO: add otel
+  // TODO: add tracing, logging and metrics
+
 	cfg, err := infra.NewConfig()
 	if err != nil {
 		panic(err)
 	}
+  
 	logger, err := infra.NewLogger(cfg)
 	if err != nil {
-		// TODO: add tracing, logging and metrics
-
 		panic(err)
 	}
+  
 	fx.New(
 		fx.Supply(logger.Zap, logger, cfg),
 
