@@ -22,8 +22,7 @@ import (
 // @description "Type 'Bearer TOKEN' to correctly set the API Key"
 func main() {
 	// TODO: log db requests
-	// TODO: add otel
-	// TODO: add scalar
+	// TODO: add tracing, logging and metrics
 
 	fx.New(
 		fx.Provide(
