@@ -5,7 +5,7 @@
 package service
 
 import (
-	"backend/internal/model"
+	"backend/internal/infra/queries"
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
@@ -111,22 +111,22 @@ func (_c *MockUserService_Create_Call) RunAndReturn(run func(ctx context.Context
 }
 
 // GetByEmail provides a mock function for the type MockUserService
-func (_mock *MockUserService) GetByEmail(ctx context.Context, email string) (model.User, error) {
+func (_mock *MockUserService) GetByEmail(ctx context.Context, email string) (queries.User, error) {
 	ret := _mock.Called(ctx, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByEmail")
 	}
 
-	var r0 model.User
+	var r0 queries.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (queries.User, error)); ok {
 		return returnFunc(ctx, email)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) queries.User); ok {
 		r0 = returnFunc(ctx, email)
 	} else {
-		r0 = ret.Get(0).(model.User)
+		r0 = ret.Get(0).(queries.User)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, email)
@@ -166,33 +166,33 @@ func (_c *MockUserService_GetByEmail_Call) Run(run func(ctx context.Context, ema
 	return _c
 }
 
-func (_c *MockUserService_GetByEmail_Call) Return(user model.User, err error) *MockUserService_GetByEmail_Call {
+func (_c *MockUserService_GetByEmail_Call) Return(user queries.User, err error) *MockUserService_GetByEmail_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *MockUserService_GetByEmail_Call) RunAndReturn(run func(ctx context.Context, email string) (model.User, error)) *MockUserService_GetByEmail_Call {
+func (_c *MockUserService_GetByEmail_Call) RunAndReturn(run func(ctx context.Context, email string) (queries.User, error)) *MockUserService_GetByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByID provides a mock function for the type MockUserService
-func (_mock *MockUserService) GetByID(ctx context.Context, id string) (model.User, error) {
+func (_mock *MockUserService) GetByID(ctx context.Context, id string) (queries.User, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 model.User
+	var r0 queries.User
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (model.User, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (queries.User, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) queries.User); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
-		r0 = ret.Get(0).(model.User)
+		r0 = ret.Get(0).(queries.User)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, id)
@@ -232,12 +232,12 @@ func (_c *MockUserService_GetByID_Call) Run(run func(ctx context.Context, id str
 	return _c
 }
 
-func (_c *MockUserService_GetByID_Call) Return(user model.User, err error) *MockUserService_GetByID_Call {
+func (_c *MockUserService_GetByID_Call) Return(user queries.User, err error) *MockUserService_GetByID_Call {
 	_c.Call.Return(user, err)
 	return _c
 }
 
-func (_c *MockUserService_GetByID_Call) RunAndReturn(run func(ctx context.Context, id string) (model.User, error)) *MockUserService_GetByID_Call {
+func (_c *MockUserService_GetByID_Call) RunAndReturn(run func(ctx context.Context, id string) (queries.User, error)) *MockUserService_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }

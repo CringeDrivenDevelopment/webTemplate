@@ -5,7 +5,7 @@
 package service
 
 import (
-	"backend/internal/model"
+	"backend/internal/infra/queries"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -98,7 +98,7 @@ func (_c *MockAuthService_GenerateToken_Call) RunAndReturn(run func(userID strin
 }
 
 // VerifyPassword provides a mock function for the type MockAuthService
-func (_mock *MockAuthService) VerifyPassword(user model.User, password string) error {
+func (_mock *MockAuthService) VerifyPassword(user queries.User, password string) error {
 	ret := _mock.Called(user, password)
 
 	if len(ret) == 0 {
@@ -106,7 +106,7 @@ func (_mock *MockAuthService) VerifyPassword(user model.User, password string) e
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(model.User, string) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(queries.User, string) error); ok {
 		r0 = returnFunc(user, password)
 	} else {
 		r0 = ret.Error(0)
@@ -120,17 +120,17 @@ type MockAuthService_VerifyPassword_Call struct {
 }
 
 // VerifyPassword is a helper method to define mock.On call
-//   - user model.User
+//   - user queries.User
 //   - password string
 func (_e *MockAuthService_Expecter) VerifyPassword(user interface{}, password interface{}) *MockAuthService_VerifyPassword_Call {
 	return &MockAuthService_VerifyPassword_Call{Call: _e.mock.On("VerifyPassword", user, password)}
 }
 
-func (_c *MockAuthService_VerifyPassword_Call) Run(run func(user model.User, password string)) *MockAuthService_VerifyPassword_Call {
+func (_c *MockAuthService_VerifyPassword_Call) Run(run func(user queries.User, password string)) *MockAuthService_VerifyPassword_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 model.User
+		var arg0 queries.User
 		if args[0] != nil {
-			arg0 = args[0].(model.User)
+			arg0 = args[0].(queries.User)
 		}
 		var arg1 string
 		if args[1] != nil {
@@ -149,7 +149,7 @@ func (_c *MockAuthService_VerifyPassword_Call) Return(err error) *MockAuthServic
 	return _c
 }
 
-func (_c *MockAuthService_VerifyPassword_Call) RunAndReturn(run func(user model.User, password string) error) *MockAuthService_VerifyPassword_Call {
+func (_c *MockAuthService_VerifyPassword_Call) RunAndReturn(run func(user queries.User, password string) error) *MockAuthService_VerifyPassword_Call {
 	_c.Call.Return(run)
 	return _c
 }

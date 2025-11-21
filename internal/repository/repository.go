@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"backend/internal/infra/queries"
 	"context"
+
+	"backend/internal/infra/queries"
 )
 
 type UserRepository interface {

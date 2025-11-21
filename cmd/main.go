@@ -1,14 +1,13 @@
 package main
 
 import (
-	"backend/internal/repository"
-	userRepo "backend/internal/repository/user"
-
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 
 	"backend/internal/infra"
+	"backend/internal/repository"
+	userRepo "backend/internal/repository/user"
 	"backend/internal/service/auth"
 	"backend/internal/service/user"
 	"backend/internal/transport/api/handlers"
@@ -32,7 +31,7 @@ func main() {
 	}
 	logger, err := infra.NewLogger(cfg)
 	if err != nil {
-	// TODO: add tracing, logging and metrics
+		// TODO: add tracing, logging and metrics
 
 		panic(err)
 	}
@@ -58,7 +57,12 @@ func main() {
 		),
 
 		fx.WithLogger(func(log *zap.Logger) fxevent.Logger {
-			defer logger.Zap.Sync()
+			defer func(Zap *zap.Logger) {
+				err := Zap.Sync()
+				if err != nil {
+					println(err)
+				}
+			}(logger.Zap)
 			return &fxevent.ZapLogger{Logger: logger.Zap}
 		}),
 

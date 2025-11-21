@@ -1,11 +1,12 @@
 package user
 
 import (
-	"backend/internal/infra/queries"
 	"context"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/oklog/ulid/v2"
+
+	"backend/internal/infra/queries"
 )
 
 func (s *Service) Create(ctx context.Context, email, password string) (string, error) {

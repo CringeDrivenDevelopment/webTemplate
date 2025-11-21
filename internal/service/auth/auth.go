@@ -1,13 +1,13 @@
 package auth
 
 import (
-	"backend/internal/infra/queries"
 	"strings"
 	"time"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/golang-jwt/jwt/v5"
 
+	"backend/internal/infra/queries"
 	"backend/pkg/utils"
 )
 

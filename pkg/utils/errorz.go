@@ -3,11 +3,11 @@ package utils
 import (
 	"errors"
 
-	"backend/internal/infra"
-
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+
+	"backend/internal/infra"
 )
 
 var (

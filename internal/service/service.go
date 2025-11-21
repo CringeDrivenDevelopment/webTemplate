@@ -1,8 +1,9 @@
 package service
 
 import (
-	"backend/internal/infra/queries"
 	"context"
+
+	"backend/internal/infra/queries"
 )
 
 // AuthService defines auth service interface

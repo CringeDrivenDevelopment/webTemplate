@@ -1,7 +1,6 @@
 package infra
 
 import (
-	projectroot "backend"
 	"context"
 	"time"
 
@@ -10,6 +9,8 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 	"go.uber.org/fx"
+
+	projectroot "backend"
 )
 
 func NewPostgresConnection(lc fx.Lifecycle, logger *Logger, cfg *Config) (*pgxpool.Pool, error) {
