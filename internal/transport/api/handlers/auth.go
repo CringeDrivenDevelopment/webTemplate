@@ -41,29 +41,17 @@ func NewAuth(userService *user.Service, authService *auth.Service, logger *infra
 }
 
 // login godoc
-
 // @Summary      Login
-
 // @Description  Войти в аккаунт, также выполняет функцию регистрации
-
 // @Tags         auth
-
 // @Accept       json
-
 // @Produce      json
-
 // @Param        body body dto.AuthData  true  "Auth data"
-
 // @Success      200  {object}  dto.Token
-
 // @Failure      400  {object}  dto.ApiError
-
 // @Failure      401  {object}  dto.ApiError
-
 // @Failure      500  {object}  dto.ApiError
-
 // @Router       /api/login [post]
-
 func (h *Auth) login(echoCtx echo.Context) error {
 	var data dto.AuthData
 
@@ -79,7 +67,7 @@ func (h *Auth) login(echoCtx echo.Context) error {
 
 	var userID string
 
-	user, err := h.userService.GetByEmail(ctx, data.Email)
+	appUser, err := h.userService.GetByEmail(ctx, data.Email)
 
 	if err != nil {
 
@@ -102,7 +90,7 @@ func (h *Auth) login(echoCtx echo.Context) error {
 
 	} else {
 
-		if err = h.authService.VerifyPassword(user, data.Password); err != nil {
+		if err = h.authService.VerifyPassword(appUser, data.Password); err != nil {
 
 			h.logger.Warn(fmt.Sprintf("login error: email - %s, error - %s", data.Email, err.Error()))
 
@@ -110,7 +98,7 @@ func (h *Auth) login(echoCtx echo.Context) error {
 
 		}
 
-		userID = user.ID
+		userID = appUser.ID
 
 	}
 
