@@ -1,6 +1,7 @@
 package user
 
 import (
+	"backend/internal/infra/queries"
 	"context"
 	"errors"
 
@@ -8,8 +9,6 @@ import (
 	"github.com/oklog/ulid/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-
-	"backend/internal/model"
 )
 
 func (s *ServiceSuite) TestCreateUser() {
@@ -29,7 +28,7 @@ func (s *ServiceSuite) TestCreateUser() {
 			email:    "goodemail@gmail.com",
 			password: passwordHash,
 			mockSetup: func() {
-				s.userRepository.On("Create", ctx, mock.MatchedBy(func(u model.User) bool {
+				s.userRepository.On("Create", ctx, mock.MatchedBy(func(u queries.User) bool {
 					return u.Email == "goodemail@gmail.com"
 				})).Return(nil)
 			},
@@ -40,7 +39,7 @@ func (s *ServiceSuite) TestCreateUser() {
 			email:    "checkemail@gmail.com",
 			password: passwordHash,
 			mockSetup: func() {
-				s.userRepository.On("Create", ctx, mock.MatchedBy(func(u model.User) bool {
+				s.userRepository.On("Create", ctx, mock.MatchedBy(func(u queries.User) bool {
 					return u.Email == "checkemail@gmail.com"
 				})).Return(errors.New("такой email уже зарегистирован"))
 			},
@@ -76,19 +75,19 @@ func (s *ServiceSuite) TestGetByID() {
 		name          string
 		id            string
 		mockSetup     func()
-		expectedUser  model.User
+		expectedUser  queries.User
 		expectedError error
 	}{
 		{
 			name: "успешное получение",
 			id:   existingID,
 			mockSetup: func() {
-				s.userRepository.On("GetUserByID", ctx, existingID).Return(model.User{
+				s.userRepository.On("GetUserByID", ctx, existingID).Return(queries.User{
 					ID:    existingID,
 					Email: "test@gmail.com",
 				}, nil).Once()
 			},
-			expectedUser: model.User{
+			expectedUser: queries.User{
 				ID:    existingID,
 				Email: "test@gmail.com",
 			},
@@ -98,9 +97,9 @@ func (s *ServiceSuite) TestGetByID() {
 			name: "не существующий айди",
 			id:   nonExistingID,
 			mockSetup: func() {
-				s.userRepository.On("GetUserByID", ctx, nonExistingID).Return(model.User{}, errors.New("user not found")).Once()
+				s.userRepository.On("GetUserByID", ctx, nonExistingID).Return(queries.User{}, errors.New("user not found")).Once()
 			},
-			expectedUser:  model.User{},
+			expectedUser:  queries.User{},
 			expectedError: errors.New("user not found"),
 		},
 	}
@@ -132,19 +131,19 @@ func (s *ServiceSuite) TestGetByEmail() {
 		name          string
 		email         string
 		mockSetup     func()
-		expectedUser  model.User
+		expectedUser  queries.User
 		expectedError error
 	}{
 		{
 			name:  "успешное получение",
 			email: "existing@gmail.com",
 			mockSetup: func() {
-				s.userRepository.On("GetUserByEmail", ctx, "existing@gmail.com").Return(model.User{
+				s.userRepository.On("GetUserByEmail", ctx, "existing@gmail.com").Return(queries.User{
 					ID:    "some-id",
 					Email: "existing@gmail.com",
 				}, nil).Once()
 			},
-			expectedUser: model.User{
+			expectedUser: queries.User{
 				ID:    "some-id",
 				Email: "existing@gmail.com",
 			},
@@ -154,9 +153,9 @@ func (s *ServiceSuite) TestGetByEmail() {
 			name:  "не существующий email",
 			email: "nonexisting@gmail.com",
 			mockSetup: func() {
-				s.userRepository.On("GetUserByEmail", ctx, "nonexisting@gmail.com").Return(model.User{}, errors.New("user not found")).Once()
+				s.userRepository.On("GetUserByEmail", ctx, "nonexisting@gmail.com").Return(queries.User{}, errors.New("user not found")).Once()
 			},
-			expectedUser:  model.User{},
+			expectedUser:  queries.User{},
 			expectedError: errors.New("user not found"),
 		},
 	}

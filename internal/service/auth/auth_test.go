@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"backend/internal/infra/queries"
 	"testing"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"backend/internal/infra"
-	"backend/internal/model"
 )
 
 func TestGenerateToken(t *testing.T) {
@@ -75,7 +75,7 @@ func TestVerifyPassword_Success(t *testing.T) {
 
 	require.NoError(t, err)
 
-	user := model.User{
+	user := queries.User{
 		PasswordHash: hash,
 	}
 
@@ -95,7 +95,7 @@ func TestVerifyPassword_InvalidPassword(t *testing.T) {
 
 	require.NoError(t, err)
 
-	user := model.User{
+	user := queries.User{
 		PasswordHash: hash,
 	}
 
