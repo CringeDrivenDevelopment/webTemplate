@@ -1,18 +1,18 @@
 package main
 
 import (
-	authV1 "backend/internal/transport/api/handlers/auth/v1"
-	userV1 "backend/internal/transport/api/handlers/user/v1"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 
-	"backend/internal/infra"
-	"backend/internal/repository"
-	userRepo "backend/internal/repository/user"
-	"backend/internal/service/auth"
-	"backend/internal/service/user"
-	"backend/internal/transport/api/middlewares"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/repository"
+	userRepo "github.com/CringeDrivenDevelopment/webTemplate/internal/repository/user"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/service/auth"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/service/user"
+	authV1 "github.com/CringeDrivenDevelopment/webTemplate/internal/transport/api/handlers/auth/v1"
+	userV1 "github.com/CringeDrivenDevelopment/webTemplate/internal/transport/api/handlers/user/v1"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/transport/api/middlewares"
 )
 
 // @title           Backend API
@@ -22,6 +22,7 @@ import (
 // @in header
 // @name Authorization
 // @description "Type 'Bearer TOKEN' to correctly set the API Key"
+
 func main() {
 	// TODO: log db requests
 	// TODO: add tracing, logging and metrics

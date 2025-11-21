@@ -12,14 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"backend/internal/infra"
-	"backend/internal/infra/queries"
-	repositoryMocks "backend/internal/repository/mocks"
-	"backend/pkg/utils"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra/queries"
+	repositoryMocks "github.com/CringeDrivenDevelopment/webTemplate/internal/repository/mocks"
+	"github.com/CringeDrivenDevelopment/webTemplate/pkg/utils"
 )
 
 func TestLogin(t *testing.T) {
 	cfg := &infra.Config{JwtSecret: "test-secret"}
+
 	ctx := context.Background()
 
 	// Create a test user with hashed password
@@ -53,6 +54,7 @@ func TestLogin(t *testing.T) {
 			expectedError: nil,
 			checkToken:    true,
 		},
+
 		{
 			name:     "user not found",
 			email:    "nonexistent@example.com",
@@ -64,6 +66,7 @@ func TestLogin(t *testing.T) {
 			expectedError: utils.ErrInvalidUser,
 			checkToken:    false,
 		},
+
 		{
 			name:     "database error",
 			email:    "test@example.com",
@@ -75,6 +78,7 @@ func TestLogin(t *testing.T) {
 			expectedError: errors.New("database connection error"),
 			checkToken:    false,
 		},
+
 		{
 			name:     "invalid password",
 			email:    "test@example.com",

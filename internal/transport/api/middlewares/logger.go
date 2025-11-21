@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 
-	"backend/internal/infra"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra"
 )
 
 func NewLogger(log *infra.Logger) echo.MiddlewareFunc {

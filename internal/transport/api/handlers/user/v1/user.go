@@ -1,15 +1,15 @@
 package v1
 
 import (
-	"backend/internal/service/user"
-	"backend/pkg/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 
-	"backend/internal/infra"
-	"backend/internal/service"
-	"backend/internal/transport/api/dto"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/service"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/service/user"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/transport/api/dto"
+	"github.com/CringeDrivenDevelopment/webTemplate/pkg/utils"
 )
 
 type User struct {
@@ -25,7 +25,6 @@ func NewUser(userService *user.Service, logger *infra.Logger, router *echo.Echo)
 	}
 
 	router.POST("/api/register", result.register)
-
 	return result
 }
 
@@ -40,15 +39,14 @@ func NewUser(userService *user.Service, logger *infra.Logger, router *echo.Echo)
 // @Failure      400  {object}  dto.ApiError
 // @Failure      401  {object}  dto.ApiError
 // @Failure      500  {object}  dto.ApiError
-// @Router       /api/register [post]
+// @Router       /api/user/v1/register [post]
 func (h *User) register(echoCtx echo.Context) error {
 	var data dto.AuthData
-
 	if err := echoCtx.Bind(&data); err != nil {
 		return err
 	}
-	ctx := echoCtx.Request().Context()
 
+	ctx := echoCtx.Request().Context()
 	h.logger.Info("register: " + data.Email)
 
 	token, err := h.userService.Register(ctx, data.Email, data.Password)

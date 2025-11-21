@@ -50,7 +50,9 @@ func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.Middl
 	}
 
 	router.JSONSerializer = &sonicJSONSerializer{}
+
 	router.HideBanner = true
+
 	router.HidePort = true
 
 	router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -79,9 +81,9 @@ func NewEcho(lc fx.Lifecycle, cfg *Config, logger *Logger, loggerWare echo.Middl
 					logger.Fatal("stopping server, cause: error", zap.Error(err))
 				}
 			}()
-
 			return nil
 		},
+
 		OnStop: func(ctx context.Context) error {
 			logger.Info("stopped server")
 			return router.Shutdown(ctx)

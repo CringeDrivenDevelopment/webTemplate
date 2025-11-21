@@ -19,12 +19,9 @@ func (*User) TableName() string {
 
 func (u *User) BeforeSave(tx *gorm.DB) error {
 	var user User
-
 	err := tx.Where("LOWER(users.email) = ?", strings.ToLower(u.Email)).First(&user).Error
-
 	if err == nil {
 		return fmt.Errorf("user with that email already exists")
 	}
-
 	return nil
 }

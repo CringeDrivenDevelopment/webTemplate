@@ -5,7 +5,7 @@
 package repository
 
 import (
-	"backend/internal/infra/queries"
+	"github.com/CringeDrivenDevelopment/webTemplate/internal/infra/queries"
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
